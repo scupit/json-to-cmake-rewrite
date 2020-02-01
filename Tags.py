@@ -45,5 +45,4 @@ IMPORT_ROOT_DIR = "rootDir"
 IMPORTED_LIB_FILES = "libFiles"
 
 # Build Target attributes
-C_FLAGS = "cFlags"
-CPP_FLAGS = "cppFlags"
+COMPILER_FLAGS = "compilerFlags"

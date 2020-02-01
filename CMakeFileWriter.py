@@ -14,6 +14,17 @@ def newlines(cmakeLists, numNewlines: int = 1):
   for i in range(0, numNewlines):
     cmakeLists.write('\n')
 
+def writeOutputDirs(outputData: OutputItem, cmakeLists):
+  cmakeLists.write(f"set_target_properties( {outputData.name} PROPERTIES")
+
+  if outputData.isSharedLib or outputData.isSharedLib:
+    cmakeLists.write(f"\n\tARCHIVE_OUTPUT_DIRECTORY {FileWriteUtils.getOutputDir(outputData.libOutputDir)}")
+    cmakeLists.write(f"\n\tLIBRARY_OUTPUT_DIRECTORY {FileWriteUtils.getOutputDir(outputData.libOutputDir)}")
+  elif outputData.isExe:
+    cmakeList.write(f"\n\tRUNTIME_OUTPUT_DIRECTORY {FileWriteUtils.getOutputDir(outputData.exeOutputDir)}")
+
+  cmakeLists.write(')')
+
 # ////////////////////////////////////////////////////////////////////////////////
 # DATA WRITE FUNCTIONS
 # ////////////////////////////////////////////////////////////////////////////////
@@ -25,6 +36,7 @@ def writeWatermark(cmakeLists):
   newlines(cmakeLists)
   # TODO: Add github link
   cmakeLists.write("################################################################################")
+  newlines(cmakeLists, 2)
 
 def writeCmakeVersion(data: BuildData, cmakeLists):
   cmakeLists.write(f"cmake_minimum_required( VERSION {data.cmakeVersion} )")
@@ -105,6 +117,9 @@ def writeSharedLib(sharedLib: OutputItem, allData: BuildData, cmakeLists):
   if sharedLib.hasIncludeDirs():
     cmakeLists.write(f"\ntarget_include_directories( {sharedLib.name} PRIVATE {inBraces(includeDirsVariable(sharedLib.name))} )")
 
+  newlines(cmakeLists, 2)
+  writeOutputDirs(sharedLib, cmakeLists)
+
 def writeStaticLib(staticLib: OutputItem, allData: BuildData, cmakeLists):
   writeGeneralOutputData(staticLib, allData, cmakeLists)
   newlines(cmakeLists, 2)
@@ -113,6 +128,9 @@ def writeStaticLib(staticLib: OutputItem, allData: BuildData, cmakeLists):
   if staticLib.hasIncludeDirs():
     cmakeLists.write(f"\ntarget_include_directories( {staticLib.name} PRIVATE {inBraces(includeDirsVariable(staticLib.name))} )")
 
+  newlines(cmakeLists, 2)
+  writeOutputDirs(staticLib, cmakeLists)
+
 def writeExe(exeItem: OutputItem, allData: BuildData, cmakeLists):
   writeGeneralOutputData(exeItem, allData, cmakeLists)
   newlines(cmakeLists, 2)
@@ -120,6 +138,9 @@ def writeExe(exeItem: OutputItem, allData: BuildData, cmakeLists):
   cmakeLists.write(f"add_execuatable( {exeItem.name} {inBraces(sourcesVariable(exeItem.name))} )")
   if exeItem.hasIncludeDirs():
     cmakeLists.write(f"\ntarget_include_directories( {exeItem.name} PRIVATE {inBraces(includeDirsVariable(exeItem.name))} )")
+
+  newlines(cmakeLists, 2)
+  writeOutputDirs(exeItem, cmakeLists)
 
 def writeOutputs(data, cmakeLists):
   # Print shared libs
@@ -167,12 +188,41 @@ def writeStandards(allData: BuildData, cmakeLists):
 
   cmakeLists.write(f"\nmessage( {usingCppStandardMessage} )")
 
+def writeBuildTargets(allData: BuildData, cmakeLists):
+  # Default build target
+  cmakeLists.write(f"if( {inQuotes(FileWriteUtils.cmakeBuildType)} STREQUAL {FileWriteUtils.emptyQuotes} )")
+  cmakeLists.write(f"\n\tset( CMAKE_BUILD_TYPE {inQuotes(allData.defaultBuildTarget)} FORCE )")
+  cmakeLists.write(')')
+
+  newlines(cmakeLists)
+
+  i = 0
+  for buildTarget in allData.buildTargets:
+    if not buildTarget.hasCompilerFlags():
+      continue
+
+    newlines(cmakeLists)
+
+    if i == 0:
+      cmakeLists.write("if")
+    else:
+      cmakeLists.write("elseif")
+    cmakeLists.write(f"( {FileWriteUtils.cmakeBuildType} STREQUAL {allData.buildTargets[i]} )")
+
+    cmakeLists.write(f"\n\tadd_compile_options( ")
+    for flag in buildTarget.compilerFlags:
+      cmakeLists.write(inQuotes(flag) + ' ')
+    cmakeLists.write(')')
+
+    # Increment 'i' so 'elseif' blocks are placed correctly
+    i += 1
+  cmakeLists.write("\nendif()")
+
 def writeFile():
   with open(FileHelper.getAbsolutePath(Globals.CMAKE_FILE_NAME), 'w') as cmakeLists:
     data = BuildData()
 
     writeWatermark(cmakeLists)
-    newlines(cmakeLists, 2)
 
     writeCmakeVersion(data, cmakeLists)
     newlines(cmakeLists)
@@ -187,4 +237,6 @@ def writeFile():
 
     writeStandards(data, cmakeLists)
     newlines(cmakeLists, 2)
+
+    writeBuildTargets(data, cmakeLists)
     

@@ -22,3 +22,9 @@ def sourcesVariable(variableName: str) -> str:
 projectSourceDir = inBraces("PROJECT_SOURCE_DIR")
 cmakeBinaryDir = inBraces("CMAKE_BINARY_DIR")
 cmakeBuildType = inBraces("CMAKE_BUILD_TYPE")
+
+emptyQuotes = '""'
+
+# Misc functions
+def getOutputDir(dirname: str) -> str:
+  return f"{cmakeBinaryDir}/{dirname}/{cmakeBuildType}"
