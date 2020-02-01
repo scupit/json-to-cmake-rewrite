@@ -19,6 +19,10 @@ def getAbsolutePath(filePath: str) -> str:
 def getDirRetrievalRegex(dirToSearch):
   return str(rootPathObject / dirToSearch / "**")
 
+def getProjectName() -> str:
+  pathString = str(rootPathObject)
+  return pathString[pathString.rfind(os.path.pathsep) + 1:]
+
 def getSearchRegex(dirToSearch, extension, isRecursive):
   return str(rootPathObject / dirToSearch / f"{'**/' if isRecursive else ''}*.{extension}")
 

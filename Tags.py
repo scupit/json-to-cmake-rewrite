@@ -1,7 +1,17 @@
 # Main tags
+PROJECT_NAME = "projectName"
+
 OUTPUT = "output"
 IMPORTED_LIBRARIES = "importedLibs"
 BUILD_TARGETS = "buildTargets"
+
+C_STANDARDS = "supportedCStandards"
+CPP_STANDARDS = "supportedCppStandards"
+
+DEFAULT_C_STANDARD = "defaultCStandard"
+DEFAULT_CPP_STANDARD = "defaultCppStandard"
+
+DEFAULT_BUILD_TARGET = "defaultBuildTarget"
 
 # General item attributes
 TYPE = "type"
