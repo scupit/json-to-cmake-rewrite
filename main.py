@@ -1,8 +1,7 @@
-import sys
+import Extensions
+import FileHelper
 
-if len(sys.argv) > 1:
-  print("Additional arguments: ")
-  for x in range(1, len(sys.argv)):
-    print("\t", sys.argv[x])
-else:
-  print("No additional arguments passed to python script...")
+testDirname = "testing-sfml/dep"
+# testDirname = "testing-sfml/include"
+
+print(FileHelper.getFilesByExtension(testDirname, Extensions.headers, False))
