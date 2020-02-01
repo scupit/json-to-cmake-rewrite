@@ -2,6 +2,9 @@
 def inBraces(variableName: str) -> str:
   return "${" + variableName + "}"
 
+def inQuotes(text: str) -> str:
+  return '"' + test + '"'
+
 def mangleLibName(libName: str, index: int) -> str:
   return libName + '_' + index
 

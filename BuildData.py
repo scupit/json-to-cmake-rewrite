@@ -40,6 +40,8 @@ class BuildData:
 
       self.linkLibsToOutputs(jsonData)
 
+  # UTILS
+
   def getOutputByName(self, outputName: str) -> OutputItem:
     for output in self.outputs:
       if output.name == outputName:
@@ -51,6 +53,8 @@ class BuildData:
       if importedLib.name == importedLibName:
         return importedLib
     return None
+
+  # LOAD FUNCTIONS
 
   def linkLibsToOutputs(self, jsonData):
     if Tags.LINKS in jsonData:
@@ -93,6 +97,8 @@ class BuildData:
         self.defaultBuildTarget = jsonData[Tags.DEFAULT_BUILD_TARGET]
       else:
         Logger.logIssueThenQuit(f"{Tags.DEFAULT_BUILD_TARGET} must exist in {Tags.BUILD_TARGETS}")
+    else:
+      self.defaultBuildTarget = self.buildTargets[0]
 
   # Call inside loadStandards(...)
   def loadDefaultStandards(self, jsonData):
@@ -101,19 +107,31 @@ class BuildData:
         self.defaultCStandard = jsonData[Tags.DEFAULT_C_STANDARD]
       else:
         Logger.logIssueThenQuit(f"{Tags.DEFAULT_C_STANDARD} must be present in {Tags.C_STANDARDS}")
+    else:
+      # Ensure a default C standard exists
+      self.defaultCStandard = self.supportedCStandards[0]
     
     if Tags.DEFAULT_CPP_STANDARD in jsonData:
       if jsonData[Tags.DEFAULT_CPP_STANDARD] in self.supportedCppStandards:
         self.defaultCppStandard = jsonData[Tags.DEFAULT_CPP_STANDARD]
       else:
         Logger.logIssueThenQuit(f"{Tags.DEFAULT_CPP_STANDARD} must be present in {Tags.CPP_STANDARDS}")
+    else:
+      # Ensure a default C++ standard exists
+      self.defaultCppStandard = self.supportedCppStandards[0]
 
   def loadStandards(self, jsonData):
     if Tags.C_STANDARDS in jsonData:
       self.supportedCStandards = jsonData[Tags.C_STANDARDS]
+    else:
+      # Ensure there is always at least one C standard
+      self.supportedCStandards.append(Globals.DEFAULT_C_STANDARD)
 
     if Tags.CPP_STANDARDS in jsonData:
       self.supportedCppStandards = jsonData[Tags.CPP_STANDARDS]
+    else:
+      # Ensure there is always at least one C++ standard
+      self.supportedCppStandards.append(Globals.DEFAULT_CPP_STANDARD)
 
     self.loadDefaultStandards(jsonData)
 

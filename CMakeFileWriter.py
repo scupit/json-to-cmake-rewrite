@@ -1,14 +1,22 @@
 import FileHelper
 import FileWriteUtils
-from FileWriteUtils import inBraces, headersVariable, sourcesVariable, includeDirsVariable
+from FileWriteUtils import inBraces, inQuotes, headersVariable, sourcesVariable, includeDirsVariable
 import Globals
 
 from BuildData import BuildData
 from OutputItem import OutputItem
 
+# ////////////////////////////////////////////////////////////////////////////////
+# GENERAL WRITE FUNCTIONS
+# ////////////////////////////////////////////////////////////////////////////////
+
 def newlines(cmakeLists, numNewlines: int = 1):
   for i in range(0, numNewlines):
     cmakeLists.write('\n')
+
+# ////////////////////////////////////////////////////////////////////////////////
+# DATA WRITE FUNCTIONS
+# ////////////////////////////////////////////////////////////////////////////////
 
 def writeWatermark(cmakeLists):
   cmakeLists.write("################################################################################")
@@ -24,7 +32,7 @@ def writeCmakeVersion(data: BuildData, cmakeLists):
 def writeProjectName(data: BuildData, cmakeLists):
   cmakeLists.write(f"project( {data.projectName } )")
 
-def printImportedLibs(data: BuildData, cmakeLists):
+def writeImportedLibs(data: BuildData, cmakeLists):
   for importedLib in data.importedLibs:
 
     if importedLib.hasIncludeDirs()
@@ -55,7 +63,7 @@ def printImportedLibs(data: BuildData, cmakeLists):
       cmakeLists.write(f"\n\tPATHS {importedLib.dirContainingLibraryFiles}")
     cmakeLists.write(')')
 
-def printGeneralOutputData(outputData: OutputItem, data, cmakeLists):
+def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists):
   # Write headers
   outputData.headers.sort()
   cmakeLists.write(f"set( {headersVariable(outputData.name)}")
@@ -89,48 +97,75 @@ def printGeneralOutputData(outputData: OutputItem, data, cmakeLists):
     cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{includeDir}")
   cmakeLists.write(')')
 
-def printSharedLib(sharedLib: OutputItem, allData: BuildData, cmakeLists):
-  printGeneralOutputData(sharedLib, allData, cmakeLists)
+def writeSharedLib(sharedLib: OutputItem, allData: BuildData, cmakeLists):
+  writeGeneralOutputData(sharedLib, allData, cmakeLists)
   newlines(cmakeLists, 2)
 
   cmakeLists.write(f"add_library( {sharedLib.name} SHARED {inBraces(sourcesVariable(sharedLib.name))} )")
   if sharedLib.hasIncludeDirs():
     cmakeLists.write(f"\ntarget_include_directories( {sharedLib.name} PRIVATE {inBraces(includeDirsVariable(sharedLib.name))} )")
 
-def printStaticLib(staticLib: OutputItem, allData: BuildData, cmakeLists):
-  printGeneralOutputData(staticLib, allData, cmakeLists)
+def writeStaticLib(staticLib: OutputItem, allData: BuildData, cmakeLists):
+  writeGeneralOutputData(staticLib, allData, cmakeLists)
   newlines(cmakeLists, 2)
 
   cmakeLists.write(f"add_library( {staticLib.name} STATIC {inBraces(sourcesVariable(staticLib.name))} )")
   if staticLib.hasIncludeDirs():
     cmakeLists.write(f"\ntarget_include_directories( {staticLib.name} PRIVATE {inBraces(includeDirsVariable(staticLib.name))} )")
 
-def printExe(exeItem: OutputItem, allData: BuildData, cmakeLists):
-  printGeneralOutputData(exeItem, allData, cmakeLists)
+def writeExe(exeItem: OutputItem, allData: BuildData, cmakeLists):
+  writeGeneralOutputData(exeItem, allData, cmakeLists)
   newlines(cmakeLists, 2)
 
   cmakeLists.write(f"add_execuatable( {exeItem.name} {inBraces(sourcesVariable(exeItem.name))} )")
   if exeItem.hasIncludeDirs():
     cmakeLists.write(f"\ntarget_include_directories( {exeItem.name} PRIVATE {inBraces(includeDirsVariable(exeItem.name))} )")
 
-def printOutputs(data, cmakeLists):
+def writeOutputs(data, cmakeLists):
   # Print shared libs
   for sharedLibOutput in data.outputs:
     if sharedLibOutput.isSharedLib:
-      printSharedLib(sharedLibOutput, data, cmakeLists)
+      writeSharedLib(sharedLibOutput, data, cmakeLists)
       newlines(cmakeLists, 2)
 
   # Print static libs
   for staticLibOutput in data.outputs:
     if staticLibOutput.isStaticLib:
-      printStaticLib(staticLibOutput, data, cmakeLists)
+      writeStaticLib(staticLibOutput, data, cmakeLists)
       newlines(cmakeLists, 2)
 
   # Print executables
   for exeOutput in data.outputs:
     if exeOutput.isExe:
-      printExe(exeOutput, data, cmakeLists)
+      writeExe(exeOutput, data, cmakeLists)
       newlines(cmakeLists, 2)
+
+def writeStandards(allData: BuildData, cmakeLists):
+  usingCStandardMessage = inQuotes(f"Using C compiler standard --std=c{inBraces('CMAKE_C_STANDARD')}")
+  usingCPPStandardMessage = inQuotes(f"Using CXX compiler standard --std=c++{inBraces('CMAKE_CXX_STANDARD')}")
+
+  # Default C standard
+  cmakeLists.write(f"set( CMAKE_C_STANDARD {inQuotes(allData.defaultCStandard)} CACHE STRING {inQuotes('C compiler standard year')} )")
+
+  # Supported C standards
+  cmakeLists.write("\nset_property( CACHE CMAKE_C_STANDARD PROPERTY STRINGS ")
+  for cStandard in allData.supportedCStandards:
+    cmakeLists.write(inQuotes(cStandard) + ' ')
+  cmakeLists.write(')')
+
+  cmakeLists.write(f"\nmessage( {usingCStandardMessage} )")
+  newlines(cmakeLists, 2)
+
+  # Default C++ standard
+  cmakeLists.write(f"set( CMAKE_CXX_STANDARD {inQuotes(allData.defaultCppStandard)} CACHE STRING {inQuotes('CXX compiler standard year')}")
+
+  # Supported C++ standards
+  cmakeLists.write("\nset_property( CACHE CMAKE_CXX_STANDARD PROPERTY STRINGS ")
+  for cppStandard in allData.supportedCppStandards:
+    cmakeLists.write(inQuotes(cppStandard) + ' ')
+  cmakeLists.write(')')
+
+  cmakeLists.write(f"\nmessage( {usingCppStandardMessage} )")
 
 def writeFile():
   with open(FileHelper.getAbsolutePath(Globals.CMAKE_FILE_NAME), 'w') as cmakeLists:
@@ -144,9 +179,12 @@ def writeFile():
     writeProjectName(data, cmakeLists)
     newlines(cmakeLists, 2)
 
-    printImportedLibs(data, cmakeLists)
+    writeImportedLibs(data, cmakeLists)
     newlines(cmakeLists, 2)
 
-    # Already ends in two newlines due to how outputs are printed from 'for' loops
-    printOutputs(data, cmakeLists)
+    # Already ends in two newlines due to how outputs are writeed from 'for' loops
+    writeOutputs(data, cmakeLists)
+
+    writeStandards(data, cmakeLists)
+    newlines(cmakeLists, 2)
     
