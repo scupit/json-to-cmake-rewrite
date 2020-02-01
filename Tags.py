@@ -30,3 +30,7 @@ STATIC_LIB = "staticLib"
 # Imported library attributes
 IMPORT_ROOT_DIR = "rootDir"
 IMPORTED_LIB_FILES = "libFiles"
+
+# Build Target attributes
+C_FLAGS = "cFlags"
+CPP_FLAGS = "cppFlags"

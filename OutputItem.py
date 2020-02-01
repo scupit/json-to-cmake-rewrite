@@ -21,6 +21,8 @@ class OutputItem:
   includeDirs = [ ]
 
   # List of references to ImportedLibs and OutputItems which are libraries
+  # These are not loaded in initially. They are added at a later phase by the
+  # BuildData class
   linkedLibs = [ ]
 
   isExe = False
