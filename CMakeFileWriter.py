@@ -172,6 +172,20 @@ def writeOutputs(data, cmakeLists):
       writeExe(exeOutput, data, cmakeLists)
       newlines(cmakeLists, 2)
 
+def writeLinks(allData: BuildData, cmakeLists):
+  headerComment(cmakeLists, "LINK LIBRARIES TO OUTPUTS")
+
+  for outputItem in allData.outputs:
+    if outputItem.hasLinkedLibs():
+      cmakeLists.print(f"target_link_libraries( {outputItem.name}")
+      for linkedLibrary in outputItem.linkedLibs:
+        # Imported libraries must be treated as string variables, which
+        # is why imported library names are put in braces
+        fixedLibraryName = inBraces(linkedLibrary.name) if linkedLibrary is ImportedLibrary else linkedLibrary.name
+        cmakeLists.write(f"\t{fixedLibraryName}")
+      cmakeLists.print(')')
+      newlines(cmakeLists, 2)
+
 def writeStandards(allData: BuildData, cmakeLists):
   headerComment(cmakeLists, "LANGUAGE STANDARDS")
 
@@ -257,8 +271,11 @@ def writeFile():
     writeImportedLibs(data, cmakeLists)
     newlines(cmakeLists, 2)
 
-    # Already ends in two newlines due to how outputs are writeed from 'for' loops
+    # Already ends in two newlines due to how outputs are written from 'for' loops
     writeOutputs(data, cmakeLists)
+
+    # Already ends in two newlines
+    writeLinks(data, cmakeLists)
 
     writeStandards(data, cmakeLists)
     newlines(cmakeLists, 2)
