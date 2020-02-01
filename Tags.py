@@ -1,6 +1,7 @@
 # Main tags
 OUTPUT = "output"
 IMPORTED_LIBRARIES = "importedLibs"
+BUILD_TARGETS = "buildTargets"
 
 # General item attributes
 TYPE = "type"
