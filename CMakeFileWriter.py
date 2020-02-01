@@ -4,6 +4,7 @@ from FileWriteUtils import inBraces, inQuotes, headersVariable, sourcesVariable,
 import Globals
 
 from BuildData import BuildData
+from ImportedLibrary import ImportedLibrary
 from OutputItem import OutputItem
 
 # ////////////////////////////////////////////////////////////////////////////////
@@ -231,6 +232,16 @@ def writeBuildTargets(allData: BuildData, cmakeLists):
     # Increment 'i' so 'elseif' blocks are placed correctly
     i += 1
   cmakeLists.write("\nendif()")
+
+  usingFlagsMessage = inQuotes(f"Using compiler flags: {inBraces('COMPILER_OPTIONS')}")
+  buildTypeMessage = inQuotes(f"Building project '{FileWriteUtils.cmakeBuildType}' configuration")
+
+  cmakeLists.write(f"\n\nmessage( {usingFlagsMessage} )")
+  cmakeLists.write(f"\nmessage( {buildTypeMessage} )")
+
+# ////////////////////////////////////////////////////////////////////////////////
+# THE MAIN FILE WRITE FUNCTION
+# ////////////////////////////////////////////////////////////////////////////////
 
 def writeFile():
   with open(FileHelper.getAbsolutePath(Globals.CMAKE_FILE_NAME), 'w') as cmakeLists:
