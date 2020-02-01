@@ -10,6 +10,12 @@ from OutputItem import OutputItem
 # GENERAL WRITE FUNCTIONS
 # ////////////////////////////////////////////////////////////////////////////////
 
+def headerComment(cmakeLists, title: str):
+  cmakeLists.write("# ////////////////////////////////////////////////////////////////////////////////")
+  cmakeLists.write(f"\n {title}")
+  cmakeLists.write("\n# ////////////////////////////////////////////////////////////////////////////////")
+  newlines(cmakeLists, 2)
+
 def newlines(cmakeLists, numNewlines: int = 1):
   for i in range(0, numNewlines):
     cmakeLists.write('\n')
@@ -45,6 +51,8 @@ def writeProjectName(data: BuildData, cmakeLists):
   cmakeLists.write(f"project( {data.projectName } )")
 
 def writeImportedLibs(data: BuildData, cmakeLists):
+  headerComment(cmakeLists, "IMPORTED LIBRARIES")
+
   for importedLib in data.importedLibs:
 
     if importedLib.hasIncludeDirs()
@@ -143,6 +151,8 @@ def writeExe(exeItem: OutputItem, allData: BuildData, cmakeLists):
   writeOutputDirs(exeItem, cmakeLists)
 
 def writeOutputs(data, cmakeLists):
+  headerComment(cmakeLists, "OUTPUT ITEMS")
+
   # Print shared libs
   for sharedLibOutput in data.outputs:
     if sharedLibOutput.isSharedLib:
@@ -162,6 +172,8 @@ def writeOutputs(data, cmakeLists):
       newlines(cmakeLists, 2)
 
 def writeStandards(allData: BuildData, cmakeLists):
+  headerComment(cmakeLists, "LANGUAGE STANDARDS")
+
   usingCStandardMessage = inQuotes(f"Using C compiler standard --std=c{inBraces('CMAKE_C_STANDARD')}")
   usingCPPStandardMessage = inQuotes(f"Using CXX compiler standard --std=c++{inBraces('CMAKE_CXX_STANDARD')}")
 
@@ -189,6 +201,8 @@ def writeStandards(allData: BuildData, cmakeLists):
   cmakeLists.write(f"\nmessage( {usingCppStandardMessage} )")
 
 def writeBuildTargets(allData: BuildData, cmakeLists):
+  headerComment(cmakeLists, "BUILD TARGETS")
+
   # Default build target
   cmakeLists.write(f"if( {inQuotes(FileWriteUtils.cmakeBuildType)} STREQUAL {FileWriteUtils.emptyQuotes} )")
   cmakeLists.write(f"\n\tset( CMAKE_BUILD_TYPE {inQuotes(allData.defaultBuildTarget)} FORCE )")
