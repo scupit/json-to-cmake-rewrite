@@ -17,6 +17,9 @@ class OutputItem:
   headers = [ ]
   includeDirs = [ ]
 
+  # List of references to ImportedLibs and OutputItems which are libraries
+  linkedLibs = [ ]
+
   isExe = False
   isStaticLib = False
   isSharedLib = False
