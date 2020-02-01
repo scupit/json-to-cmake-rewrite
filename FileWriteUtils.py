@@ -3,10 +3,10 @@ def inBraces(variableName: str) -> str:
   return "${" + variableName + "}"
 
 def inQuotes(text: str) -> str:
-  return '"' + test + '"'
+  return '"' + text + '"'
 
 def mangleLibName(libName: str, index: int) -> str:
-  return libName + '_' + index
+  return libName + '_' + str(index)
 
 # Variable functions
 def includeDirsVariable(variableName: str) -> str:

@@ -28,7 +28,7 @@ def writeOutputDirs(outputData: OutputItem, cmakeLists):
     cmakeLists.write(f"\n\tARCHIVE_OUTPUT_DIRECTORY {FileWriteUtils.getOutputDir(outputData.libOutputDir)}")
     cmakeLists.write(f"\n\tLIBRARY_OUTPUT_DIRECTORY {FileWriteUtils.getOutputDir(outputData.libOutputDir)}")
   elif outputData.isExe:
-    cmakeList.write(f"\n\tRUNTIME_OUTPUT_DIRECTORY {FileWriteUtils.getOutputDir(outputData.exeOutputDir)}")
+    cmakeLists.write(f"\n\tRUNTIME_OUTPUT_DIRECTORY {FileWriteUtils.getOutputDir(outputData.exeOutputDir)}")
 
   cmakeLists.write(')')
 
@@ -56,7 +56,7 @@ def writeImportedLibs(data: BuildData, cmakeLists):
 
   for importedLib in data.importedLibs:
 
-    if importedLib.hasIncludeDirs()
+    if importedLib.hasIncludeDirs():
       # Write include dirs variable
       importedLib.includeDirs.sort()
       cmakeLists.write(f"set( {includeDirsVariable(importedLib.name)}")
@@ -67,7 +67,7 @@ def writeImportedLibs(data: BuildData, cmakeLists):
 
     newlines(cmakeLists, 2)
 
-    if importedLib.hasHeaders()
+    if importedLib.hasHeaders():
       # Write headers variable
       importedLib.headers.sort()
       cmakeLists.write(f"set( {headersVariable(importedLib.name)}")
@@ -90,7 +90,7 @@ def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists):
   cmakeLists.write(f"set( {headersVariable(outputData.name)}")
   for linkedLib in outputData.linkedLibs:
     if linkedLib.hasHeaders():
-      cmakeLists.write(f"\n\t{inBraces(headersVariable(linkedImportedLib.name))}")
+      cmakeLists.write(f"\n\t{inBraces(headersVariable(linkedLib.name))}")
   for headerFile in outputData.headers:
     cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{headerFile}")
   cmakeLists.write(')')
@@ -177,20 +177,20 @@ def writeLinks(allData: BuildData, cmakeLists):
 
   for outputItem in allData.outputs:
     if outputItem.hasLinkedLibs():
-      cmakeLists.print(f"target_link_libraries( {outputItem.name}")
+      cmakeLists.write(f"target_link_libraries( {outputItem.name}")
       for linkedLibrary in outputItem.linkedLibs:
         # Imported libraries must be treated as string variables, which
         # is why imported library names are put in braces
         fixedLibraryName = inBraces(linkedLibrary.name) if linkedLibrary is ImportedLibrary else linkedLibrary.name
         cmakeLists.write(f"\t{fixedLibraryName}")
-      cmakeLists.print(')')
+      cmakeLists.write(')')
       newlines(cmakeLists, 2)
 
 def writeStandards(allData: BuildData, cmakeLists):
   headerComment(cmakeLists, "LANGUAGE STANDARDS")
 
   usingCStandardMessage = inQuotes(f"Using C compiler standard --std=c{inBraces('CMAKE_C_STANDARD')}")
-  usingCPPStandardMessage = inQuotes(f"Using CXX compiler standard --std=c++{inBraces('CMAKE_CXX_STANDARD')}")
+  usingCppStandardMessage = inQuotes(f"Using CXX compiler standard --std=c++{inBraces('CMAKE_CXX_STANDARD')}")
 
   # Default C standard
   cmakeLists.write(f"set( CMAKE_C_STANDARD {inQuotes(allData.defaultCStandard)} CACHE STRING {inQuotes('C compiler standard year')} )")
@@ -257,28 +257,26 @@ def writeBuildTargets(allData: BuildData, cmakeLists):
 # THE MAIN FILE WRITE FUNCTION
 # ////////////////////////////////////////////////////////////////////////////////
 
-def writeFile():
-  with open(FileHelper.getAbsolutePath(Globals.CMAKE_FILE_NAME), 'w') as cmakeLists:
-    data = BuildData()
+def writeFile(cmakeLists):
+  data = BuildData()
 
-    writeWatermark(cmakeLists)
+  writeWatermark(cmakeLists)
 
-    writeCmakeVersion(data, cmakeLists)
-    newlines(cmakeLists)
-    writeProjectName(data, cmakeLists)
-    newlines(cmakeLists, 2)
+  writeCmakeVersion(data, cmakeLists)
+  newlines(cmakeLists)
+  writeProjectName(data, cmakeLists)
+  newlines(cmakeLists, 2)
 
-    writeImportedLibs(data, cmakeLists)
-    newlines(cmakeLists, 2)
+  writeImportedLibs(data, cmakeLists)
+  newlines(cmakeLists, 2)
 
-    # Already ends in two newlines due to how outputs are written from 'for' loops
-    writeOutputs(data, cmakeLists)
+  # Already ends in two newlines due to how outputs are written from 'for' loops
+  writeOutputs(data, cmakeLists)
 
-    # Already ends in two newlines
-    writeLinks(data, cmakeLists)
+  # Already ends in two newlines
+  writeLinks(data, cmakeLists)
 
-    writeStandards(data, cmakeLists)
-    newlines(cmakeLists, 2)
+  writeStandards(data, cmakeLists)
+  newlines(cmakeLists, 2)
 
-    writeBuildTargets(data, cmakeLists)
-    
+  writeBuildTargets(data, cmakeLists)

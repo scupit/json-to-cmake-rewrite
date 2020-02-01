@@ -1,4 +1,7 @@
-from BuildData import BuildData
+from CMakeFileWriter import writeFile
+from FileHelper import getAbsolutePath
+from Globals import CMAKE_FILE_NAME
 
-data = BuildData()
-print(type(data.outputs[0].linkedLibs[0]))
+with open(getAbsolutePath(CMAKE_FILE_NAME), 'w') as cmakeLists:
+  writeFile(cmakeLists)
+  print(CMAKE_FILE_NAME, "written successfully!")
