@@ -185,12 +185,15 @@ def writeLinks(allData: BuildData, cmakeLists):
   for outputItem in allData.outputs:
     if outputItem.hasLinkedLibs():
       cmakeLists.write(f"target_link_libraries( {outputItem.name}")
+
       for linkedLibrary in outputItem.linkedLibs:
-        # Imported libraries must be treated as string variables, which
-        # is why imported library names are put in braces
-        fixedLibraryName = inBraces(linkedLibrary.name) if linkedLibrary is ImportedLibrary else linkedLibrary.name
-        cmakeLists.write(f"\t{fixedLibraryName} ")
-      cmakeLists.write(')')
+        if isinstance(linkedLibrary, OutputItem):
+          cmakeLists.write(f"\n\t{linkedLibrary.name} ")
+        elif isinstance(linkedLibrary, ImportedLibrary):
+          for i in range(0, len(linkedLibrary.libraryFiles)):
+            cmakeLists.write(f"\n\t{inBraces(FileWriteUtils.mangleLibName(linkedLibrary.name, i))}")
+
+      cmakeLists.write('\n)')
       newlines(cmakeLists, 2)
 
 def writeStandards(allData: BuildData, cmakeLists):
@@ -225,10 +228,17 @@ def writeStandards(allData: BuildData, cmakeLists):
 def writeBuildTargets(allData: BuildData, cmakeLists):
   headerComment(cmakeLists, "BUILD TARGETS")
 
+  cmakeLists.write(f"set_property( CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ")
+  for target in allData.buildTargets:
+    cmakeLists.write(inQuotes(target.name) + ' ')
+  cmakeLists.write(')')
+
+  newlines(cmakeLists, 2)
+
   # Default build target
   cmakeLists.write(f"if( {inQuotes(FileWriteUtils.cmakeBuildType)} STREQUAL {FileWriteUtils.emptyQuotes} )")
-  cmakeLists.write(f"\n\tset( CMAKE_BUILD_TYPE {inQuotes(allData.defaultBuildTarget)} FORCE )")
-  cmakeLists.write('\n)')
+  cmakeLists.write(f"\n\tset( CMAKE_BUILD_TYPE {inQuotes(allData.defaultBuildTarget)} CACHE STRING \"Project Configuration\" FORCE )")
+  cmakeLists.write('\nendif()')
 
   newlines(cmakeLists)
 
@@ -245,16 +255,21 @@ def writeBuildTargets(allData: BuildData, cmakeLists):
       cmakeLists.write("elseif")
     cmakeLists.write(f"( {inQuotes(FileWriteUtils.cmakeBuildType)} STREQUAL {inQuotes(allData.buildTargets[i].name)} )")
 
-    cmakeLists.write(f"\n\tadd_compile_options( ")
+    cmakeLists.write(f"\n\tset( CMAKE_CXX_FLAGS \"")
     for flag in buildTarget.compilerFlags:
-      cmakeLists.write(inQuotes(flag) + ' ')
-    cmakeLists.write(')')
+      cmakeLists.write(flag + ' ')
+    cmakeLists.write("\" )")
+
+    cmakeLists.write(f"\n\tset( CMAKE_C_FLAGS \"")
+    for flag in buildTarget.compilerFlags:
+      cmakeLists.write(flag + ' ')
+    cmakeLists.write('\" )')
 
     # Increment 'i' so 'elseif' blocks are placed correctly
     i += 1
   cmakeLists.write("\nendif()")
 
-  usingFlagsMessage = inQuotes(f"Using compiler flags: {inBraces('COMPILER_OPTIONS')}")
+  usingFlagsMessage = inQuotes(f"Using compiler flags: {inBraces('CMAKE_CXX_FLAGS')}")
   buildTypeMessage = inQuotes(f"Building project '{FileWriteUtils.cmakeBuildType}' configuration")
 
   cmakeLists.write(f"\n\nmessage( {usingFlagsMessage} )")
