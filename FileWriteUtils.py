@@ -23,7 +23,7 @@ projectSourceDir = inBraces("PROJECT_SOURCE_DIR")
 cmakeBinaryDir = inBraces("CMAKE_BINARY_DIR")
 cmakeBuildType = inBraces("CMAKE_BUILD_TYPE")
 
-emptyQuotes = '""'
+emptyQuotes = inQuotes("")
 
 # Misc functions
 def getOutputDir(dirname: str) -> str:

@@ -7,13 +7,16 @@ from BuildData import BuildData
 from ImportedLibrary import ImportedLibrary
 from OutputItem import OutputItem
 
+def conditionalNoneText(x: bool) -> str:
+  return "" if x else "(none)"
+
 # ////////////////////////////////////////////////////////////////////////////////
 # GENERAL WRITE FUNCTIONS
 # ////////////////////////////////////////////////////////////////////////////////
 
 def headerComment(cmakeLists, title: str):
   cmakeLists.write("# ////////////////////////////////////////////////////////////////////////////////")
-  cmakeLists.write(f"\n {title}")
+  cmakeLists.write(f"\n# {title}")
   cmakeLists.write("\n# ////////////////////////////////////////////////////////////////////////////////")
   newlines(cmakeLists, 2)
 
@@ -30,7 +33,7 @@ def writeOutputDirs(outputData: OutputItem, cmakeLists):
   elif outputData.isExe:
     cmakeLists.write(f"\n\tRUNTIME_OUTPUT_DIRECTORY {FileWriteUtils.getOutputDir(outputData.exeOutputDir)}")
 
-  cmakeLists.write(')')
+  cmakeLists.write('\n)')
 
 # ////////////////////////////////////////////////////////////////////////////////
 # DATA WRITE FUNCTIONS
@@ -52,7 +55,7 @@ def writeProjectName(data: BuildData, cmakeLists):
   cmakeLists.write(f"project( {data.projectName } )")
 
 def writeImportedLibs(data: BuildData, cmakeLists):
-  headerComment(cmakeLists, "IMPORTED LIBRARIES")
+  headerComment(cmakeLists, f"IMPORTED LIBRARIES {conditionalNoneText(data.hasImportedLibraries())}")
 
   for importedLib in data.importedLibs:
 
@@ -63,7 +66,7 @@ def writeImportedLibs(data: BuildData, cmakeLists):
 
       for includeDir in importedLib.includeDirs:
         cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{includeDir}")
-      cmakeLists.write(')')
+      cmakeLists.write('\n)')
 
     newlines(cmakeLists, 2)
 
@@ -74,7 +77,7 @@ def writeImportedLibs(data: BuildData, cmakeLists):
 
       for headerFile in importedLib.headers:
         cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{headerFile}")
-      cmakeLists.write(')')
+      cmakeLists.write('\n)')
 
     # Write library files
     for i in range(0, len(importedLib.libraryFiles)):
@@ -82,7 +85,7 @@ def writeImportedLibs(data: BuildData, cmakeLists):
       cmakeLists.write(f"find_library( {FileWriteUtils.mangleLibName(importedLib.name, i)}")
       cmakeLists.write(f"\n\tNAMES {importedLib.libraryFiles[i]}")
       cmakeLists.write(f"\n\tPATHS {importedLib.dirContainingLibraryFiles}")
-    cmakeLists.write(')')
+      cmakeLists.write('\n)')
 
 def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists):
   # Write headers
@@ -93,7 +96,7 @@ def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists):
       cmakeLists.write(f"\n\t{inBraces(headersVariable(linkedLib.name))}")
   for headerFile in outputData.headers:
     cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{headerFile}")
-  cmakeLists.write(')')
+  cmakeLists.write('\n)')
 
   newlines(cmakeLists, 2)
 
@@ -106,7 +109,9 @@ def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists):
     cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{outputData.mainFile}")
   for sourceFile in outputData.sources:
     cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{sourceFile}")
-  cmakeLists.write(')')
+  cmakeLists.write('\n)')
+
+  newlines(cmakeLists, 2)
 
   # Write include dirs
   outputData.includeDirs.sort()
@@ -116,7 +121,7 @@ def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists):
       cmakeLists.write(f"\n\t{inBraces(includeDirsVariable(linkedLib.name))}")
   for includeDir in outputData.includeDirs:
     cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{includeDir}")
-  cmakeLists.write(')')
+  cmakeLists.write('\n)')
 
 def writeSharedLib(sharedLib: OutputItem, allData: BuildData, cmakeLists):
   writeGeneralOutputData(sharedLib, allData, cmakeLists)
@@ -144,28 +149,30 @@ def writeExe(exeItem: OutputItem, allData: BuildData, cmakeLists):
   writeGeneralOutputData(exeItem, allData, cmakeLists)
   newlines(cmakeLists, 2)
 
-  cmakeLists.write(f"add_execuatable( {exeItem.name} {inBraces(sourcesVariable(exeItem.name))} )")
+  cmakeLists.write(f"add_executable( {exeItem.name} {inBraces(sourcesVariable(exeItem.name))} )")
   if exeItem.hasIncludeDirs():
     cmakeLists.write(f"\ntarget_include_directories( {exeItem.name} PRIVATE {inBraces(includeDirsVariable(exeItem.name))} )")
 
   newlines(cmakeLists, 2)
   writeOutputDirs(exeItem, cmakeLists)
 
-def writeOutputs(data, cmakeLists):
-  headerComment(cmakeLists, "OUTPUT ITEMS")
+def writeOutputs(data: BuildData, cmakeLists):
 
+  headerComment(cmakeLists, f"OUTPUT SHARED LIBRARIES {conditionalNoneText(data.hasSharedLibOutputs())}")
   # Print shared libs
   for sharedLibOutput in data.outputs:
     if sharedLibOutput.isSharedLib:
       writeSharedLib(sharedLibOutput, data, cmakeLists)
       newlines(cmakeLists, 2)
 
+  headerComment(cmakeLists, f"OUTPUT STATIC LIBRARIES {conditionalNoneText(data.hasStaticLibOutputs())}")
   # Print static libs
   for staticLibOutput in data.outputs:
     if staticLibOutput.isStaticLib:
       writeStaticLib(staticLibOutput, data, cmakeLists)
       newlines(cmakeLists, 2)
 
+  headerComment(cmakeLists, f"OUTPUT EXECUTABLES {conditionalNoneText(data.hasExecutableOutputs())}")
   # Print executables
   for exeOutput in data.outputs:
     if exeOutput.isExe:
@@ -182,7 +189,7 @@ def writeLinks(allData: BuildData, cmakeLists):
         # Imported libraries must be treated as string variables, which
         # is why imported library names are put in braces
         fixedLibraryName = inBraces(linkedLibrary.name) if linkedLibrary is ImportedLibrary else linkedLibrary.name
-        cmakeLists.write(f"\t{fixedLibraryName}")
+        cmakeLists.write(f"\t{fixedLibraryName} ")
       cmakeLists.write(')')
       newlines(cmakeLists, 2)
 
@@ -205,7 +212,7 @@ def writeStandards(allData: BuildData, cmakeLists):
   newlines(cmakeLists, 2)
 
   # Default C++ standard
-  cmakeLists.write(f"set( CMAKE_CXX_STANDARD {inQuotes(allData.defaultCppStandard)} CACHE STRING {inQuotes('CXX compiler standard year')}")
+  cmakeLists.write(f"set( CMAKE_CXX_STANDARD {inQuotes(allData.defaultCppStandard)} CACHE STRING {inQuotes('CXX compiler standard year')} )")
 
   # Supported C++ standards
   cmakeLists.write("\nset_property( CACHE CMAKE_CXX_STANDARD PROPERTY STRINGS ")
@@ -221,7 +228,7 @@ def writeBuildTargets(allData: BuildData, cmakeLists):
   # Default build target
   cmakeLists.write(f"if( {inQuotes(FileWriteUtils.cmakeBuildType)} STREQUAL {FileWriteUtils.emptyQuotes} )")
   cmakeLists.write(f"\n\tset( CMAKE_BUILD_TYPE {inQuotes(allData.defaultBuildTarget)} FORCE )")
-  cmakeLists.write(')')
+  cmakeLists.write('\n)')
 
   newlines(cmakeLists)
 
@@ -236,7 +243,7 @@ def writeBuildTargets(allData: BuildData, cmakeLists):
       cmakeLists.write("if")
     else:
       cmakeLists.write("elseif")
-    cmakeLists.write(f"( {FileWriteUtils.cmakeBuildType} STREQUAL {allData.buildTargets[i]} )")
+    cmakeLists.write(f"( {inQuotes(FileWriteUtils.cmakeBuildType)} STREQUAL {inQuotes(allData.buildTargets[i].name)} )")
 
     cmakeLists.write(f"\n\tadd_compile_options( ")
     for flag in buildTarget.compilerFlags:

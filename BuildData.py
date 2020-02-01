@@ -42,6 +42,27 @@ class BuildData:
 
   # UTILS
 
+  def hasSharedLibOutputs(self) -> bool:
+    for output in self.outputs:
+      if output.isSharedLib:
+        return True
+    return False
+
+  def hasStaticLibOutputs(self) -> bool:
+    for output in self.outputs:
+      if output.isStaticLib:
+        return True
+    return False
+
+  def hasExecutableOutputs(self) -> bool:
+    for output in self.outputs:
+      if output.isExe:
+        return True
+    return False
+
+  def hasImportedLibraries(self) -> bool:
+    return len(self.importedLibs) > 0
+
   def getOutputByName(self, outputName: str) -> OutputItem:
     for output in self.outputs:
       if output.name == outputName:
