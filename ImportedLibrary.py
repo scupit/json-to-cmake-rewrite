@@ -20,6 +20,14 @@ class ImportedLibrary:
     self.loadRootDir(importedLibData)
     self.loadLibraryFiles(importedLibData)
 
+  # UTILS
+  def hasHeaders(self):
+    return len(self.headers) > 0
+
+  def hasIncludeDirs(self):
+    return len(self.includeDirs) > 0
+
+  # LOAD FUNCTIONS
   def loadHeaders(self, importedLibData):
     self.headers = FileRetriever.getHeaderFiles(importedLibData)
 

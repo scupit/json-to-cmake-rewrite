@@ -45,6 +45,25 @@ class OutputItem:
     self.loadHeaders(outputData)
     self.loadIncludeDirs(outputData)
 
+  # UTILS
+  
+  def hasSources(self):
+    return len(self.sources) > 0
+  
+  def hasHeaders(self):
+    return len(self.headers) > 0
+
+  def hasIncludeDirs(self):
+    return len(self.includeDirs) > 0
+
+  def hasMainFile(self):
+    return not self.mainFile is None
+
+  def hasLinkedLibs(self):
+    return len(self.linkedLibs) > 0
+
+  # LOAD FUNCTIONS
+
   def loadType(self, outputData):
     if not Tags.TYPE in outputData:
       Logger.logIssueThenQuit(f"{Tags.TYPE} must be specified in output: {self.name}")
