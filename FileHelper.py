@@ -21,7 +21,7 @@ def getDirRetrievalRegex(dirToSearch):
 
 def getProjectName() -> str:
   pathString = str(rootPathObject)
-  return pathString[pathString.rfind(os.path.pathsep) + 1:]
+  return pathString[pathString.rfind(os.path.sep) + 1:]
 
 def getSearchRegex(dirToSearch, extension, isRecursive):
   return str(rootPathObject / dirToSearch / f"{'**/' if isRecursive else ''}*.{extension}")

@@ -46,7 +46,7 @@ class BuildData:
     if Tags.DEFAULT_BUILD_TARGET in jsonData:
       targetExists = False
       for target in self.buildTargets:
-        if target.name == jsonData[Tags.DEFAULT_BUILD_TARGET]
+        if target.name == jsonData[Tags.DEFAULT_BUILD_TARGET]:
           targetExists = True
           break
       
@@ -59,13 +59,13 @@ class BuildData:
   def loadDefaultStandards(self, jsonData):
     if Tags.DEFAULT_C_STANDARD in jsonData:
       if jsonData[Tags.DEFAULT_C_STANDARD] in self.supportedCStandards:
-        self.defaultCStandard = jsonData[Tags.C_STANDARDS]
-      else
+        self.defaultCStandard = jsonData[Tags.DEFAULT_C_STANDARD]
+      else:
         Logger.logIssueThenQuit(f"{Tags.DEFAULT_C_STANDARD} must be present in {Tags.C_STANDARDS}")
     
     if Tags.DEFAULT_CPP_STANDARD in jsonData:
       if jsonData[Tags.DEFAULT_CPP_STANDARD] in self.supportedCppStandards:
-        self.defaultCppStandard = jsonData[Tags.CPP_STANDARDS]
+        self.defaultCppStandard = jsonData[Tags.DEFAULT_CPP_STANDARD]
       else:
         Logger.logIssueThenQuit(f"{Tags.DEFAULT_CPP_STANDARD} must be present in {Tags.CPP_STANDARDS}")
 
