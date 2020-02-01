@@ -5,6 +5,8 @@ OUTPUT = "output"
 IMPORTED_LIBRARIES = "importedLibs"
 BUILD_TARGETS = "buildTargets"
 
+LINKS = "links"
+
 C_STANDARDS = "supportedCStandards"
 CPP_STANDARDS = "supportedCppStandards"
 

@@ -38,6 +38,45 @@ class BuildData:
       self.loadBuildTargets(jsonData)
       self.loadStandards(jsonData)
 
+      self.linkLibsToOutputs(jsonData)
+
+  def getOutputByName(self, outputName: str) -> OutputItem:
+    for output in self.outputs:
+      if output.name == outputName:
+        return output
+    return None
+
+  def getImportedLibByName(self, importedLibName: str) -> ImportedLibrary:
+    for importedLib in self.importedLibs:
+      if importedLib.name == importedLibName:
+        return importedLib
+    return None
+
+  def linkLibsToOutputs(self, jsonData):
+    if Tags.LINKS in jsonData:
+      for outputName, linkedLibs in jsonData[Tags.LINKS].items():
+        outputLinkingTo = self.getOutputByName(outputName)
+
+        if outputLinkingTo is None:
+          Logger.logIssueThenQuit(f"Tried linking to output {outputName} which does not exist")
+
+        for linkedLibName in linkedLibs:
+          outputLibLinking = self.getOutputByName(linkedLibName)
+          importedLibLinking = self.getImportedLibByName(linkedLibName)
+
+          if not outputLibLinking is None:
+            if outputLibLinking.isSharedLib or outputLibLinking.isStaticLib:
+              if outputLinkingTo.isSharedLib or outputLinkingTo.isStaticLib:
+                Logger.logIssueThenQuit(f"Please don't link output library {linkedLibName} to {outputName}, as this could cause issues")
+              else:
+                outputLinkingTo.linkedLibs.append(outputLibLinking)
+            else:
+              Logger.logIssueThenQuit(f"Cannot link non-library output {linkedLibName} to {outputName}")
+          elif not importedLibLinking is None:
+            outputLinkingTo.linkedLibs.append(importedLibLinking)
+          else:
+            Logger.logIssueThenQuit(f"Cannot link nonexistent library {linkedLibName} to {outputName}")
+
   def loadProjectName(self, jsonData):
     if Tags.PROJECT_NAME in jsonData:
       self.projectName = jsonData[Tags.PROJECT_NAME]
