@@ -1,5 +1,6 @@
 import Extensions
 import FileRetriever
+import Logger
 import Tags
 
 def hasAnySourceTags(outputData):
@@ -13,6 +14,8 @@ def hasAnyHeaderTags(outputData):
     or Tags.INDIVIDUAL_HEADERS in outputData
 
 class OutputItem:
+  name = ""
+
   sources = [ ]
   headers = [ ]
   includeDirs = [ ]
@@ -42,7 +45,7 @@ class OutputItem:
 
   def loadType(self, outputData):
     if not Tags.TYPE in outputData:
-      raise KeyError(f"{Tags.TYPE} must be specified in output: {self.name}")
+      Logger.logIssueThenQuit(f"{Tags.TYPE} must be specified in output: {self.name}")
 
     if outputData[Tags.TYPE] == Tags.EXE:
       self.isExe = True
@@ -51,7 +54,7 @@ class OutputItem:
     elif outputData[Tags.TYPE] == Tags.STATIC_LIB:
       self.isStaticLib = True
     else:
-      raise KeyError(f"Invalid {Tags.TYPE} given to output: {self.name}")
+      Logger.logIssueThenQuit(f"Invalid {Tags.TYPE} given to output: {self.name}")
 
   def loadMainFile(self, outputData):
     if self.isExe and Tags.MAIN_FILE in outputData:

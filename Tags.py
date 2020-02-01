@@ -1,5 +1,6 @@
 # Main tags
 OUTPUT = "output"
+IMPORTED_LIBRARIES = "importedLibs"
 
 # General item attributes
 TYPE = "type"
@@ -25,3 +26,7 @@ LIB_OUTPUT_DIR = "libOutputDir"
 EXE = "executable"
 SHARED_LIB = "sharedLib"
 STATIC_LIB = "staticLib"
+
+# Imported library attributes
+IMPORT_ROOT_DIR = "rootDir"
+IMPORTED_LIB_FILES = "libFiles"

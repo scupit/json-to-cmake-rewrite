@@ -19,7 +19,6 @@ def getSourceFiles(dataItem) -> list:
 
   # Remove duplicates
   sources = list(set(sources))
-  sources.sort()
   return sources
 
 def getHeaderFiles(dataItem) -> list:
@@ -39,7 +38,6 @@ def getHeaderFiles(dataItem) -> list:
 
   # Remove duplicates
   headers = list(set(headers))
-  headers.sort()
   return headers
 
 def getIncludeDirs(dataItem):
@@ -55,5 +53,4 @@ def getIncludeDirs(dataItem):
 
   # Remove duplicates
   includeDirs = list(set(includeDirs))
-  includeDirs.sort()
   return includeDirs
