@@ -1,4 +1,7 @@
-# General attributes
+# Main tags
+OUTPUT = "output"
+
+# General item attributes
 TYPE = "type"
 
 R_SOURCE_DIRS = "rSourceDirs"

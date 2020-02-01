@@ -13,15 +13,31 @@ def combineExtensions(extensions: list) -> str:
       output += '|'
   return output
 
+def getAbsolutePath(filePath: str) -> str:
+  return str((rootPathObject / filePath).resolve())
+
+def getDirRetrievalRegex(dirToSearch):
+  return str(rootPathObject / dirToSearch / "**")
+
 def getSearchRegex(dirToSearch, extension, isRecursive):
   return str(rootPathObject / dirToSearch / f"{'**/' if isRecursive else ''}*.{extension}")
 
 def getRelativePath(filePath: str) -> str:
   return Path(filePath[len(str(rootPathObject)) + 1:]).as_posix()
 
-def getFilesByExtension(dirToSearch, extensions, doRecursively = False):
+def getFilesByExtension(dirToSearch, extensions, doRecursively):
   files = [ ]
   for extension in extensions:
     for fileName in iglob(getSearchRegex(dirToSearch, extension, doRecursively), recursive=doRecursively):
       files.append(getRelativePath(fileName))
+  
   return files
+
+def getDirectories(fromDir, doRecursively):
+  dirs = [ ]
+  for dirName in iglob(getDirRetrievalRegex(fromDir), recursive=doRecursively):
+    dirs.append(getRelativePath(dirName))
+  return dirs
+
+def normalizePath(filePath: str) -> str:
+  return getRelativePath(getAbsolutePath(filePath))
