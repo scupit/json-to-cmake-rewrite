@@ -20,6 +20,10 @@ def headerComment(cmakeLists, title: str):
   cmakeLists.write("\n# ////////////////////////////////////////////////////////////////////////////////")
   newlines(cmakeLists, 2)
 
+def itemLabel(cmakeLists, label: str):
+  cmakeLists.write(f"# {label}")
+  newlines(cmakeLists)
+
 def newlines(cmakeLists, numNewlines: int = 1):
   for i in range(0, numNewlines):
     cmakeLists.write('\n')
@@ -59,6 +63,7 @@ def writeImportedLibs(data: BuildData, cmakeLists):
   headerComment(cmakeLists, f"IMPORTED LIBRARIES {conditionalNoneText(data.hasImportedLibraries())}")
 
   for importedLib in data.importedLibs:
+    itemLabel(cmakeLists, f"Imported lib: {importedLib.name}")
 
     if importedLib.hasIncludeDirs():
       # Write include dirs variable
@@ -91,6 +96,13 @@ def writeImportedLibs(data: BuildData, cmakeLists):
     newlines(cmakeLists, 2)
 
 def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists):
+  if outputData.isExe:
+    itemLabel(cmakeLists, f"Output executable: {outputData.name}")
+  elif outputData.isSharedLib:
+    itemLabel(cmakeLists, f"Output shared library: {outputData.name} ")
+  elif outputData.isStaticLib:
+    itemLabel(cmakeLists, f"Output static library: {outputData.name}")
+
   # Write headers
   outputData.headers.sort()
   cmakeLists.write(f"set( {headersVariable(outputData.name)}")
