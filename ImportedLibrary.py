@@ -41,6 +41,7 @@ class ImportedLibrary:
       Logger.logIssueThenQuit(f"Must specify {Tags.IMPORT_ROOT_DIR} in imported lib: {self.name}")
 
   def loadLibraryFiles(self, importedLibData):
+    self.libraryFiles = [ ]
     if Tags.IMPORTED_LIB_FILES in importedLibData:
       # At least one library file must be defined, otherwise there is an issue
       if len(importedLibData[Tags.IMPORTED_LIB_FILES]) > 0:

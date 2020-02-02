@@ -27,10 +27,11 @@ def newlines(cmakeLists, numNewlines: int = 1):
 def writeOutputDirs(outputData: OutputItem, cmakeLists):
   cmakeLists.write(f"set_target_properties( {outputData.name} PROPERTIES")
 
-  if outputData.isSharedLib or outputData.isSharedLib:
+  if outputData.isStaticLib or outputData.isSharedLib:
     cmakeLists.write(f"\n\tARCHIVE_OUTPUT_DIRECTORY {FileWriteUtils.getOutputDir(outputData.libOutputDir)}")
     cmakeLists.write(f"\n\tLIBRARY_OUTPUT_DIRECTORY {FileWriteUtils.getOutputDir(outputData.libOutputDir)}")
-  elif outputData.isExe:
+
+  if outputData.isExe or outputData.isSharedLib:
     cmakeLists.write(f"\n\tRUNTIME_OUTPUT_DIRECTORY {FileWriteUtils.getOutputDir(outputData.exeOutputDir)}")
 
   cmakeLists.write('\n)')

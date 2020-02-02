@@ -41,7 +41,6 @@ class OutputItem:
 
     self.loadType(outputData)
     self.loadMainFile(outputData)
-    self.loadOutputDirs(outputData)
     self.loadSources(outputData)
     self.loadHeaders(outputData)
     self.loadIncludeDirs(outputData)
@@ -82,12 +81,6 @@ class OutputItem:
     if self.isExe and Tags.MAIN_FILE in outputData:
       self.mainFile = outputData[Tags.MAIN_FILE]
   
-  def loadOutputDirs(self, outputData):
-    if self.isExe and Tags.EXE_OUTPUT_DIR in outputData:
-        self.exeOutputDir = outputData[Tags.EXE_OUTPUT_DIR]
-    elif Tags.LIB_OUTPUT_DIR in outputData:
-      self.libOutputDir = outputData[Tags.LIB_OUTPUT_DIR]
-
   def loadSources(self, outputData):
     self.sources = FileRetriever.getSourceFiles(outputData)
 
