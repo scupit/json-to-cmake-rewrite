@@ -75,6 +75,13 @@ class BuildData:
         return importedLib
     return None
 
+  def getOutputContainingLinkedLib(self, linkedLibSearchingFor) -> OutputItem:
+    for output in self.outputs:
+      for linkedLib in output.linkedLibs:
+        if linkedLib.name == linkedLibSearchingFor.name:
+          return output
+    return none
+
   # LOAD FUNCTIONS
 
   def linkLibsToOutputs(self, jsonData):

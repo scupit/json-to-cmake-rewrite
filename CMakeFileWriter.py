@@ -14,11 +14,12 @@ def conditionalNoneText(x: bool) -> str:
 # GENERAL WRITE FUNCTIONS
 # ////////////////////////////////////////////////////////////////////////////////
 
-def headerComment(cmakeLists, title: str):
+def headerComment(cmakeLists, title: str, newlinesAfter=True):
   cmakeLists.write("# ////////////////////////////////////////////////////////////////////////////////")
   cmakeLists.write(f"\n# {title}")
   cmakeLists.write("\n# ////////////////////////////////////////////////////////////////////////////////")
-  newlines(cmakeLists, 2)
+  if newlinesAfter:
+    newlines(cmakeLists, 2)
 
 def itemLabel(cmakeLists, label: str):
   cmakeLists.write(f"# {label}")
@@ -290,6 +291,29 @@ def writeBuildTargets(allData: BuildData, cmakeLists):
   cmakeLists.write(f"\n\nmessage( {usingFlagsMessage} )")
   cmakeLists.write(f"\nmessage( {buildTypeMessage} )")
 
+def writeImportedLibCopyCommands(allData: BuildData, cmakeLists):
+  if allData.hasImportedLibraries():
+    headerComment(cmakeLists, "IMPORTED LIBRARY COPY COMMANDS", False)
+
+    for importedLib in allData.importedLibs:
+      for i in range(0, len(importedLib.libraryFiles)):
+        newlines(cmakeLists, 2)
+
+        # Add command which copies imported libraries into the executable directory
+        outputLinkedTo = allData.getOutputContainingLinkedLib(importedLib)
+
+        # Try to execute this command when an output which depends on this imported
+        # lib is rebuild
+        if outputLinkedTo is None:
+          outputLinkedTo = allData.outputs[0].name
+
+        itemLabel(cmakeLists, f"Copy imported library {FileWriteUtils.mangleLibName(importedLib.name, i)} to executable output dir")
+        cmakeLists.write(f"add_custom_command(TARGET {outputLinkedTo.name} POST_BUILD")
+        cmakeLists.write(f"\n\tCOMMAND {inBraces('CMAKE_COMMAND')} -E copy")
+        cmakeLists.write(f"\n\t\t{inBraces(FileWriteUtils.mangleLibName(importedLib.name, i))}")
+        cmakeLists.write(f"\n\t\t{FileWriteUtils.getOutputDir(outputLinkedTo.exeOutputDir)}")
+        cmakeLists.write("\n)")
+
 # ////////////////////////////////////////////////////////////////////////////////
 # THE MAIN FILE WRITE FUNCTION
 # ////////////////////////////////////////////////////////////////////////////////
@@ -304,6 +328,12 @@ def writeFile(cmakeLists):
   writeProjectName(data, cmakeLists)
   newlines(cmakeLists, 2)
 
+  writeStandards(data, cmakeLists)
+  newlines(cmakeLists, 2)
+
+  writeBuildTargets(data, cmakeLists)
+  newlines(cmakeLists, 2)
+
   writeImportedLibs(data, cmakeLists)
 
   # Already ends in two newlines due to how outputs are written from 'for' loops
@@ -312,7 +342,4 @@ def writeFile(cmakeLists):
   # Already ends in two newlines
   writeLinks(data, cmakeLists)
 
-  writeStandards(data, cmakeLists)
-  newlines(cmakeLists, 2)
-
-  writeBuildTargets(data, cmakeLists)
+  writeImportedLibCopyCommands(data, cmakeLists)
