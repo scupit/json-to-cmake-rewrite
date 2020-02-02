@@ -119,7 +119,7 @@ class BuildData:
       else:
         Logger.logIssueThenQuit(f"{Tags.DEFAULT_BUILD_TARGET} must exist in {Tags.BUILD_TARGETS}")
     else:
-      self.defaultBuildTarget = self.buildTargets[0]
+      self.defaultBuildTarget = self.buildTargets[0].name
 
   # Call inside loadStandards(...)
   def loadDefaultStandards(self, jsonData):

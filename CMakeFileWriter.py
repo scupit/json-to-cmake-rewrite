@@ -87,6 +87,8 @@ def writeImportedLibs(data: BuildData, cmakeLists):
       cmakeLists.write(f"\n\tPATHS {importedLib.dirContainingLibraryFiles}")
       cmakeLists.write('\n)')
 
+    newlines(cmakeLists, 2)
+
 def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists):
   # Write headers
   outputData.headers.sort()
@@ -290,7 +292,6 @@ def writeFile(cmakeLists):
   newlines(cmakeLists, 2)
 
   writeImportedLibs(data, cmakeLists)
-  newlines(cmakeLists, 2)
 
   # Already ends in two newlines due to how outputs are written from 'for' loops
   writeOutputs(data, cmakeLists)

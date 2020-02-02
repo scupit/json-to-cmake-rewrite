@@ -40,7 +40,8 @@ def getFilesByExtension(dirToSearch, extensions, doRecursively):
 def getDirectories(fromDir, doRecursively):
   dirs = [ ]
   for dirName in iglob(getDirRetrievalRegex(fromDir), recursive=doRecursively):
-    dirs.append(getRelativePath(dirName))
+    if os.path.isdir(dirName):
+      dirs.append(getRelativePath(dirName))
   return dirs
 
 def normalizePath(filePath: str) -> str:

@@ -37,6 +37,7 @@ class OutputItem:
 
   def __init__(self, name, outputData):
     self.name = name
+    self.linkedLibs = [ ]
 
     self.loadType(outputData)
     self.loadMainFile(outputData)
