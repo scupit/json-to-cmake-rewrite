@@ -17,9 +17,18 @@ If you are currently in your project's root dir, you can also just run `python p
 No need to specify the root directory in this case since you are already in it.
 * It is recommended to wrap the python call in a batch or shell script for easy access. I call mine **gcmake** for "gen cmake"
 
+# cmake_data.json
+
+## What is it?
+*cmake_data.json* is the file in which you specify data for your project, including its outputs, build
+targets (such as *Debug* and *Release* builds), which files should be compiled into the outputs, etc.
+
+## Options:
+**TODO**
+
 # TODO
-- [ ] Create an example project in github and link it in this README
 - [ ] Write a proper README
+- [ ] Create an example project in github and link it in this README
 - [ ] Allow imported libraries to be imported from outside the project tree
 - [ ] Retrieve imported libraries from a specified git link into a given directory
 - [ ] Allow file names to be specified using a json object.
