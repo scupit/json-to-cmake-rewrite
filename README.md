@@ -23,3 +23,21 @@
   ]
 }
 ```
+
+- [ ] Distribute CMakeLists.txt files throughout the project tree per good practice
+- [ ] Condense file and directory names where possible (use my file tree)
+
+**Ex:** if I have a bunch of header files like this:
+* ${PROJECT_SOURCE_DIR}/dep/include/SFML/Something.hpp
+* ${PROJECT_SOURCE_DIR}/dep/include/SFML/Something_Else.hpp
+* ${PROJECT_SOURCE_DIR}/dep/include/SFML/Something_Or_Another.hpp
+* ${PROJECT_SOURCE_DIR}/dep/include/SFML/Another_File.hpp
+
+Then they should be condensed with a variable:
+`set( SFML_HEADER_ROOT ${PROJECT_SOURCE_DIR}/dep/include/SFML )`
+
+And then the file list should look like this instead:
+* ${SFML_HEADER_ROOT}/Something.hpp
+* ${SFML_HEADER_ROOT}/Something_Else.hpp
+* ${SFML_HEADER_ROOT}/Something_Or_Another.hpp
+* ${SFML_HEADER_ROOT}/Another_File.hpp
