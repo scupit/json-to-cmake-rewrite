@@ -10,6 +10,7 @@ file you write.
 
 # Usage
 * **NOTE:** Requires python 3
+
 Run `python main.py <projectRoot>`, where projectRoot is the directory containing *cmake_data.json*.
 A CMakeLists.txt file will be generated in that same directory if your json file is valid.
 
