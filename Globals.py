@@ -4,3 +4,5 @@ JSON_FILE_NAME = "cmake_data.json"
 
 DEFAULT_C_STANDARD = "11"
 DEFAULT_CPP_STANDARD = "11"
+
+EXTERNAL_GIT_REPO_DIR = "external"
