@@ -43,6 +43,7 @@ STATIC_LIB = "staticLib"
 # Imported library attributes
 IMPORT_ROOT_DIR = "rootDir"
 IMPORTED_LIB_FILES = "libFiles"
+IMPORT_GIT_REPO = "gitRepo"
 
 # Build Target attributes
 COMPILER_FLAGS = "compilerFlags"

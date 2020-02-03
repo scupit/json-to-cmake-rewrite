@@ -1,6 +1,7 @@
 import json
 
 import FileHelper
+import GitHelper
 import Globals
 import Logger
 import Tags
@@ -173,7 +174,11 @@ class BuildData:
   def loadImportedLibs(self, jsonData):
     if Tags.IMPORTED_LIBRARIES in jsonData:
       for name, importedLibData in jsonData[Tags.IMPORTED_LIBRARIES].items():
-        self.importedLibs.append(ImportedLibrary(name, importedLibData))
+        importedLib = ImportedLibrary(name, importedLibData)
+        self.importedLibs.append(importedLib)
+
+        if not importedLib.gitRepoToClone is None:
+          GitHelper.cloneRepoIfNonexistent(importedLib.gitRepoToClone)
 
   def loadBuildTargets(self, jsonData):
     if not Tags.BUILD_TARGETS in jsonData or len(jsonData[Tags.BUILD_TARGETS]) == 0:

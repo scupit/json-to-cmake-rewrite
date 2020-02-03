@@ -9,6 +9,8 @@ class ImportedLibrary:
   headers = [ ]
   includeDirs = [ ]
 
+  gitRepoToClone = None
+
   dirContainingLibraryFiles = ""
   libraryFiles = [ ]
 
@@ -19,6 +21,7 @@ class ImportedLibrary:
     self.loadIncludeDirs(importedLibData)
     self.loadRootDir(importedLibData)
     self.loadLibraryFiles(importedLibData)
+    self.loadGitRepoToClone(importedLibData)
 
   # UTILS
   def hasHeaders(self):
@@ -51,3 +54,8 @@ class ImportedLibrary:
         Logger.logIssueThenQuit(f"Must specify at least one {Tags.IMPORTED_LIB_FILES} for imported lib: {self.name}")
     else:
       Logger.logIssueThenQuit(f"{Tags.IMPORTED_LIB_FILES} are required for imported lib {Tags.IMPORTED_LIB_FILES}")
+  
+  def loadGitRepoToClone(self, importedLibData):
+    self.gitRepoToClone = None
+    if Tags.IMPORT_GIT_REPO in importedLibData:
+      self.gitRepoToClone = importedLibData[Tags.IMPORT_GIT_REPO]

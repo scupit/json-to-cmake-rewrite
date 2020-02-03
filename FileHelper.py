@@ -13,6 +13,11 @@ def combineExtensions(extensions: list) -> str:
       output += '|'
   return output
 
+def createDirIfNonexistent(dirName: str):
+  theDir = Path(dirName)
+  if not theDir.exists() or not theDir.is_dir():
+    theDir.mkdir()
+
 def getAbsolutePath(filePath: str) -> str:
   return str((rootPathObject / filePath).resolve())
 
