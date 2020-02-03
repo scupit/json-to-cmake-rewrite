@@ -91,7 +91,7 @@ def writeImportedLibs(data: BuildData, cmakeLists):
       newlines(cmakeLists, 2)
       cmakeLists.write(f"find_library( {FileWriteUtils.mangleLibName(importedLib.name, i)}")
       cmakeLists.write(f"\n\tNAMES {importedLib.libraryFiles[i]}")
-      cmakeLists.write(f"\n\tPATHS {importedLib.dirContainingLibraryFiles}")
+      cmakeLists.write(f"\n\tPATHS {FileWriteUtils.projectSourceDir}/{importedLib.dirContainingLibraryFiles}")
       cmakeLists.write('\n)')
 
     newlines(cmakeLists, 2)
@@ -219,27 +219,33 @@ def writeStandards(allData: BuildData, cmakeLists):
   usingCppStandardMessage = inQuotes(f"Using CXX compiler standard --std=c++{inBraces('CMAKE_CXX_STANDARD')}")
 
   # Default C standard
-  cmakeLists.write(f"set( CMAKE_C_STANDARD {inQuotes(allData.defaultCStandard)} CACHE STRING {inQuotes('C compiler standard year')} )")
+  cmakeLists.write(f"set( CMAKE_C_STANDARD {allData.defaultCStandard} CACHE STRING {inQuotes('C compiler standard year')} )")
 
   # Supported C standards
   cmakeLists.write("\nset_property( CACHE CMAKE_C_STANDARD PROPERTY STRINGS ")
   for cStandard in allData.supportedCStandards:
-    cmakeLists.write(inQuotes(cStandard) + ' ')
+    cmakeLists.write(cStandard + ' ')
   cmakeLists.write(')')
 
   cmakeLists.write(f"\nmessage( {usingCStandardMessage} )")
   newlines(cmakeLists, 2)
 
   # Default C++ standard
-  cmakeLists.write(f"set( CMAKE_CXX_STANDARD {inQuotes(allData.defaultCppStandard)} CACHE STRING {inQuotes('CXX compiler standard year')} )")
+  cmakeLists.write(f"set( CMAKE_CXX_STANDARD {allData.defaultCppStandard} CACHE STRING {inQuotes('CXX compiler standard year')} )")
 
   # Supported C++ standards
   cmakeLists.write("\nset_property( CACHE CMAKE_CXX_STANDARD PROPERTY STRINGS ")
   for cppStandard in allData.supportedCppStandards:
-    cmakeLists.write(inQuotes(cppStandard) + ' ')
+    cmakeLists.write(cppStandard + ' ')
   cmakeLists.write(')')
 
   cmakeLists.write(f"\nmessage( {usingCppStandardMessage} )")
+
+  cmakeLists.write(f"\n\nset( CMAKE_C_STANDARD_REQUIRED YES )")
+  cmakeLists.write(f"\nset( CMAKE_CXX_STANDARD_REQUIRED YES )")
+
+  cmakeLists.write(f"\n\nset( CMAKE_C_EXTENSIONS OFF )")
+  cmakeLists.write(f"\nset( CMAKE_CXX_EXTENSIONS OFF )")
 
 def writeBuildTargets(allData: BuildData, cmakeLists):
   headerComment(cmakeLists, "BUILD TARGETS")
@@ -296,23 +302,23 @@ def writeImportedLibCopyCommands(allData: BuildData, cmakeLists):
     headerComment(cmakeLists, "IMPORTED LIBRARY COPY COMMANDS", False)
 
     for importedLib in allData.importedLibs:
-      for i in range(0, len(importedLib.libraryFiles)):
-        newlines(cmakeLists, 2)
+      # for i in range(0, len(importedLib.libraryFiles)):
+      newlines(cmakeLists, 2)
 
-        # Add command which copies imported libraries into the executable directory
-        outputLinkedTo = allData.getOutputContainingLinkedLib(importedLib)
+      # Add command which copies imported libraries into the executable directory
+      outputLinkedTo = allData.getOutputContainingLinkedLib(importedLib)
 
-        # Try to execute this command when an output which depends on this imported
-        # lib is rebuild
-        if outputLinkedTo is None:
-          outputLinkedTo = allData.outputs[0].name
+      # Try to execute this command when an output which depends on this imported
+      # lib is rebuild
+      if outputLinkedTo is None:
+        outputLinkedTo = allData.outputs[0].name
 
-        itemLabel(cmakeLists, f"Copy imported library {FileWriteUtils.mangleLibName(importedLib.name, i)} to executable output dir")
-        cmakeLists.write(f"add_custom_command(TARGET {outputLinkedTo.name} POST_BUILD")
-        cmakeLists.write(f"\n\tCOMMAND {inBraces('CMAKE_COMMAND')} -E copy")
-        cmakeLists.write(f"\n\t\t{inBraces(FileWriteUtils.mangleLibName(importedLib.name, i))}")
-        cmakeLists.write(f"\n\t\t{FileWriteUtils.getOutputDir(outputLinkedTo.exeOutputDir)}")
-        cmakeLists.write("\n)")
+      itemLabel(cmakeLists, f"Copy libaries imported by {importedLib.name} to executable output dir")
+      cmakeLists.write(f"add_custom_command(TARGET {outputLinkedTo.name} POST_BUILD")
+      cmakeLists.write(f"\n\tCOMMAND {inBraces('CMAKE_COMMAND')} -E copy_directory")
+      cmakeLists.write(f"\n\t\t{FileWriteUtils.projectSourceDir}/{importedLib.dirContainingLibraryFiles}")
+      cmakeLists.write(f"\n\t\t{FileWriteUtils.getOutputDir(outputLinkedTo.exeOutputDir)}")
+      cmakeLists.write("\n)")
 
 # ////////////////////////////////////////////////////////////////////////////////
 # THE MAIN FILE WRITE FUNCTION
