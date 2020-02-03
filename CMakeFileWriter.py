@@ -302,14 +302,15 @@ def writeImportedLibCopyCommands(allData: BuildData, cmakeLists):
     headerComment(cmakeLists, "IMPORTED LIBRARY COPY COMMANDS", False)
 
     for importedLib in allData.importedLibs:
-      # for i in range(0, len(importedLib.libraryFiles)):
       newlines(cmakeLists, 2)
 
-      # Add command which copies imported libraries into the executable directory
+      # Add command which copies all files from the specified "root directory" of the
+      # imported library into the executable directory, so that any shared libraries
+      # will be there
       outputLinkedTo = allData.getOutputContainingLinkedLib(importedLib)
 
       # Try to execute this command when an output which depends on this imported
-      # lib is rebuild
+      # lib is rebuilt
       if outputLinkedTo is None:
         outputLinkedTo = allData.outputs[0].name
 
