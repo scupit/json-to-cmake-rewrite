@@ -29,9 +29,10 @@ targets (such as *Debug* and *Release* builds), which files should be compiled i
 
 # TODO
 - [ ] Write a proper README
+- [X] Retrieve imported libraries from a specified git link
+- [X] Change default C standard to C99
 - [ ] Create an example project in github and link it in this README
 - [ ] Allow imported libraries to be imported from outside the project tree
-- [ ] Retrieve imported libraries from a specified git link into a given directory
 - [ ] Allow file names to be specified using a json object.
 
 **Ex:** 
@@ -70,6 +71,5 @@ And then the file list should look like this instead:
 * ${SFML_HEADER_ROOT}/Something_Or_Another.hpp
 * ${SFML_HEADER_ROOT}/Another_File.hpp
 
-- [ ] Change default C standard to C99
 - [ ] If a default language standard is specified and no supported language standards were specified, use that as the single supported language standard
 - [ ] Add attributes *cStandard* and *cppStandard* for the above purpose. They will act exactly the same as the default language standard attributes, and will only be available for clarity reasons
