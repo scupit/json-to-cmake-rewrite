@@ -132,6 +132,9 @@ class BuildData:
   # Call inside loadStandards(...)
   def loadDefaultStandards(self, jsonData):
     if Tags.DEFAULT_C_STANDARD in jsonData:
+      if not self.cStandardsDefinedByUser:
+        self.supportedCStandards = [ jsonData[Tags.DEFAULT_C_STANDARD] ]
+
       if jsonData[Tags.DEFAULT_C_STANDARD] in self.supportedCStandards:
         self.defaultCStandard = jsonData[Tags.DEFAULT_C_STANDARD]
       else:
@@ -141,6 +144,9 @@ class BuildData:
       self.defaultCStandard = self.supportedCStandards[0]
     
     if Tags.DEFAULT_CPP_STANDARD in jsonData:
+      if not self.cppStandardsDefinedByUser:
+        self.supportedCppStandards = [ jsonData[Tags.DEFAULT_CPP_STANDARD] ]
+
       if jsonData[Tags.DEFAULT_CPP_STANDARD] in self.supportedCppStandards:
         self.defaultCppStandard = jsonData[Tags.DEFAULT_CPP_STANDARD]
       else:
@@ -152,15 +158,19 @@ class BuildData:
   def loadStandards(self, jsonData):
     if Tags.C_STANDARDS in jsonData:
       self.supportedCStandards = jsonData[Tags.C_STANDARDS]
+      self.cStandardsDefinedByUser = True
     else:
       # Ensure there is always at least one C standard
       self.supportedCStandards.append(Globals.DEFAULT_C_STANDARD)
+      self.cStandardsDefinedByUser = False
 
     if Tags.CPP_STANDARDS in jsonData:
       self.supportedCppStandards = jsonData[Tags.CPP_STANDARDS]
+      self.cppStandardsDefinedByUser = True
     else:
       # Ensure there is always at least one C++ standard
       self.supportedCppStandards.append(Globals.DEFAULT_CPP_STANDARD)
+      self.cppStandardsDefinedByUser = False
 
     self.loadDefaultStandards(jsonData)
 
