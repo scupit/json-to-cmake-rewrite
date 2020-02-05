@@ -47,11 +47,9 @@ def writeOutputDirs(outputData: OutputItem, cmakeLists):
 
 def writeWatermark(cmakeLists):
   cmakeLists.write("################################################################################")
-  newlines(cmakeLists)
-  cmakeLists.write("# Generated with Skylar Cupit's json-to-cmake tool")
-  newlines(cmakeLists)
-  # TODO: Add github link
-  cmakeLists.write("################################################################################")
+  cmakeLists.write("\n# Generated with Skylar Cupit's json-to-cmake tool                             #")
+  cmakeLists.write("\n# GitHub: https://github.com/scupit/json-to-cmake-rewrite                      #")
+  cmakeLists.write("\n################################################################################")
   newlines(cmakeLists, 2)
 
 def writeCmakeVersion(data: BuildData, cmakeLists):
@@ -241,8 +239,8 @@ def writeStandards(allData: BuildData, cmakeLists):
 
   cmakeLists.write(f"\nmessage( {usingCppStandardMessage} )")
 
-  cmakeLists.write(f"\n\nset( CMAKE_C_STANDARD_REQUIRED YES )")
-  cmakeLists.write(f"\nset( CMAKE_CXX_STANDARD_REQUIRED YES )")
+  cmakeLists.write(f"\n\nset( CMAKE_C_STANDARD_REQUIRED ON )")
+  cmakeLists.write(f"\nset( CMAKE_CXX_STANDARD_REQUIRED ON )")
 
   cmakeLists.write(f"\n\nset( CMAKE_C_EXTENSIONS OFF )")
   cmakeLists.write(f"\nset( CMAKE_CXX_EXTENSIONS OFF )")
