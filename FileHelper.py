@@ -13,10 +13,16 @@ def combineExtensions(extensions: list) -> str:
       output += '|'
   return output
 
-def createDirIfNonexistent(dirName: str):
-  theDir = Path(dirName)
-  if not theDir.exists() or not theDir.is_dir():
-    theDir.mkdir()
+def createDirPath(dirPath: str):
+  dirs = Path(dirPath).as_posix().split('/')
+
+  # Copy the root path object
+  currentPath = Path(str(rootPathObject))
+
+  for dirName in dirs:
+    currentPath /= dirName
+    if not currentPath.exists() or not currentPath.is_dir():
+      currentPath.mkdir()
 
 def getAbsolutePath(filePath: str) -> str:
   return str((rootPathObject / filePath).resolve())
@@ -51,3 +57,7 @@ def getDirectories(fromDir, doRecursively):
 
 def normalizePath(filePath: str) -> str:
   return getRelativePath(getAbsolutePath(filePath))
+
+def isDirectory(dirPath: str) -> bool:
+  thePath = Path(getAbsolutePath(dirPath))
+  return thePath.exists() and thePath.is_dir()

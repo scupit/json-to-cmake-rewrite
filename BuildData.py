@@ -43,6 +43,12 @@ class BuildData:
 
   # UTILS
 
+  # Call at the end of loadImportedLibs
+  def createImportedLibraryDirs(self):
+    for importedLib in self.importedLibs:
+      FileHelper.createDirPath(f"{Globals.DEPENDENCY_DIR}/{Globals.DEPENDENCY_LIB_DIR}/{importedLib.name}")
+      FileHelper.createDirPath(f"{Globals.DEPENDENCY_DIR}/{Globals.DEPENDENCY_INCLUDE_DIR}/{importedLib.name}")
+
   def hasSharedLibOutputs(self) -> bool:
     for output in self.outputs:
       if output.isSharedLib:
@@ -189,6 +195,8 @@ class BuildData:
 
         if not importedLib.gitRepoToClone is None:
           GitHelper.cloneRepoIfNonexistent(importedLib.gitRepoToClone)
+    
+    self.createImportedLibraryDirs()
 
   def loadBuildTargets(self, jsonData):
     if not Tags.BUILD_TARGETS in jsonData or len(jsonData[Tags.BUILD_TARGETS]) == 0:
