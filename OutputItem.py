@@ -48,12 +48,21 @@ class OutputItem:
   # UTILS
   
   def hasSources(self):
+    for linkedLib in self.linkedLibs:
+      if isinstance(linkedLib, OutputItem) and linkedLib.hasSources():
+        return True
     return len(self.sources) > 0
   
   def hasHeaders(self):
+    for linkedLib in self.linkedLibs:
+      if linkedLib.hasHeaders():
+        return True
     return len(self.headers) > 0
 
   def hasIncludeDirs(self):
+    for linkedLib in self.linkedLibs:
+      if linkedLib.hasIncludeDirs():
+        return True
     return len(self.includeDirs) > 0
 
   def hasMainFile(self):
