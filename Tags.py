@@ -44,6 +44,8 @@ STATIC_LIB = "staticLib"
 IMPORT_ROOT_DIR = "rootDir"
 IMPORTED_LIB_FILES = "libFiles"
 IMPORT_GIT_REPO = "gitRepo"
+IMPORT_SHOULD_CLONE_REPO = "cloneRepo"
+IMPORT_DOWNLOAD_LINK = "downloadLink"
 
 # Build Target attributes
 COMPILER_FLAGS = "compilerFlags"

@@ -1,5 +1,6 @@
 import FileRetriever
 import FileHelper
+import Globals
 import Logger
 import Tags
 
@@ -10,6 +11,8 @@ class ImportedLibrary:
   includeDirs = [ ]
 
   gitRepoToClone = None
+  shouldCloneRepo = Globals.SHOULD_CLONE_IMPORTED_REPOS
+  downloadLink = None
 
   dirContainingLibraryFiles = ""
   libraryFiles = [ ]
@@ -22,6 +25,7 @@ class ImportedLibrary:
     self.loadRootDir(importedLibData)
     self.loadLibraryFiles(importedLibData)
     self.loadGitRepoToClone(importedLibData)
+    self.loadDownloadLink(importedLibData)
 
   # UTILS
   def hasHeaders(self):
@@ -59,3 +63,12 @@ class ImportedLibrary:
     self.gitRepoToClone = None
     if Tags.IMPORT_GIT_REPO in importedLibData:
       self.gitRepoToClone = importedLibData[Tags.IMPORT_GIT_REPO]
+
+    self.shouldCloneRepo = Globals.SHOULD_CLONE_IMPORTED_REPOS
+    if Tags.IMPORT_SHOULD_CLONE_REPO in importedLibData:
+      self.shouldCloneRepo = importedLibData[Tags.IMPORT_SHOULD_CLONE_REPO]
+
+  def loadDownloadLink(self, importedLibData):
+    self.downloadLink = None
+    if Tags.IMPORT_DOWNLOAD_LINK in importedLibData:
+      self.downloadLink = importedLibData[Tags.IMPORT_GIT_REPO]
