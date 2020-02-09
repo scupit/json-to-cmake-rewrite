@@ -5,23 +5,28 @@ import Logger
 import Tags
 
 class ImportedLibrary:
-  name = ""
-
-  headers = [ ]
-  includeDirs = [ ]
-
-  gitRepoToClone = None
-  shouldCloneRepo = Globals.SHOULD_CLONE_IMPORTED_REPOS
-  downloadLink = None
-
-  dirContainingLibraryFiles = ""
-  libraryFiles = [ ]
 
   def __init__(self, name, importedLibData):
     self.name = name
 
+    self.headers = [ ]
+    self.includeDirs = [ ]
+
+    self.gitRepoToClone = None
+    # Clone imported repos by default
+    self.shouldCloneRepo = True
+    self.downloadLink = None
+
+    self.dirContainingLibraryFiles = ""
+    self.libraryFiles = [ ]
+
+    # Assume the imported library is contained in the project tree by default
+    self.isOutsideProjectTree = False
+
     self.loadHeaders(importedLibData)
     self.loadIncludeDirs(importedLibData)
+    # Must be called before loading root dir
+    self.loadIsOutsideProjectTree(importedLibData)
     self.loadRootDir(importedLibData)
     self.loadLibraryFiles(importedLibData)
     self.loadGitRepoToClone(importedLibData)
@@ -34,6 +39,9 @@ class ImportedLibrary:
   def hasIncludeDirs(self):
     return len(self.includeDirs) > 0
 
+  def isExternalWithRoot(self) -> bool:
+    return self.isOutsideProjectTree and not self.dirContainingLibraryFiles == ""
+
   # LOAD FUNCTIONS
   def loadHeaders(self, importedLibData):
     self.headers = FileRetriever.getHeaderFiles(importedLibData)
@@ -43,12 +51,15 @@ class ImportedLibrary:
 
   def loadRootDir(self, importedLibData):
     if Tags.IMPORT_ROOT_DIR in importedLibData:
-      self.dirContainingLibraryFiles = importedLibData[Tags.IMPORT_ROOT_DIR]
-    else:
+      if self.isOutsideProjectTree:
+        self.dirContainingLibraryFiles = FileHelper.getAbsoluteExternalPath(importedLibData[Tags.IMPORT_ROOT_DIR])
+      else:
+        self.dirContainingLibraryFiles = FileHelper.normalizePath(importedLibData[Tags.IMPORT_ROOT_DIR])
+    # Root dir is optional when the imported library is outside the project tree
+    elif not self.isOutsideProjectTree:
       Logger.logIssueThenQuit(f"Must specify {Tags.IMPORT_ROOT_DIR} in imported lib: {self.name}")
 
   def loadLibraryFiles(self, importedLibData):
-    self.libraryFiles = [ ]
     if Tags.IMPORTED_LIB_FILES in importedLibData:
       # At least one library file must be defined, otherwise there is an issue
       if len(importedLibData[Tags.IMPORTED_LIB_FILES]) > 0:
@@ -60,15 +71,16 @@ class ImportedLibrary:
       Logger.logIssueThenQuit(f"{Tags.IMPORTED_LIB_FILES} are required for imported lib {Tags.IMPORTED_LIB_FILES}")
   
   def loadGitRepoToClone(self, importedLibData):
-    self.gitRepoToClone = None
     if Tags.IMPORT_GIT_REPO in importedLibData:
       self.gitRepoToClone = importedLibData[Tags.IMPORT_GIT_REPO]
 
-    self.shouldCloneRepo = Globals.SHOULD_CLONE_IMPORTED_REPOS
     if Tags.IMPORT_SHOULD_CLONE_REPO in importedLibData:
       self.shouldCloneRepo = importedLibData[Tags.IMPORT_SHOULD_CLONE_REPO]
 
   def loadDownloadLink(self, importedLibData):
-    self.downloadLink = None
     if Tags.IMPORT_DOWNLOAD_LINK in importedLibData:
       self.downloadLink = importedLibData[Tags.IMPORT_GIT_REPO]
+
+  def loadIsOutsideProjectTree(self, importedLibData):
+    if Tags.IMPORT_IS_OUTSIDE_PROJECT in importedLibData:
+      self.isOutsideProjectTree = importedLibData[Tags.IMPORT_IS_OUTSIDE_PROJECT]

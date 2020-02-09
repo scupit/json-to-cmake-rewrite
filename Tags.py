@@ -47,5 +47,7 @@ IMPORT_GIT_REPO = "gitRepo"
 IMPORT_SHOULD_CLONE_REPO = "cloneRepo"
 IMPORT_DOWNLOAD_LINK = "downloadLink"
 
+IMPORT_IS_OUTSIDE_PROJECT = "outsideProjectTree"
+
 # Build Target attributes
 COMPILER_FLAGS = "compilerFlags"

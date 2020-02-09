@@ -70,6 +70,12 @@ class BuildData:
   def hasImportedLibraries(self) -> bool:
     return len(self.importedLibs) > 0
 
+  def hasCopiableImportedLibs(self) -> bool:
+    for importedLib in self.importedLibs:
+      if importedLib.isExternalWithRoot() or not importedLib.isOutsideProjectTree:
+        return True
+    return False
+
   def getOutputByName(self, outputName: str) -> OutputItem:
     for output in self.outputs:
       if output.name == outputName:

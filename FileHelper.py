@@ -27,6 +27,9 @@ def createDirPath(dirPath: str):
 def getAbsolutePath(filePath: str) -> str:
   return str((rootPathObject / filePath).resolve())
 
+def getAbsoluteExternalPath(filePath: str) -> str:
+  return Path(filePath).resolve().as_posix()
+
 def getDirRetrievalRegex(dirToSearch):
   return str(rootPathObject / dirToSearch / "**")
 

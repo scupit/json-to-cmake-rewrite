@@ -72,8 +72,7 @@ def writeImportedLibs(data: BuildData, cmakeLists):
       for includeDir in importedLib.includeDirs:
         cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{includeDir}")
       cmakeLists.write('\n)')
-
-    newlines(cmakeLists, 2)
+      newlines(cmakeLists, 2)
 
     if importedLib.hasHeaders():
       # Write headers variable
@@ -89,7 +88,11 @@ def writeImportedLibs(data: BuildData, cmakeLists):
       newlines(cmakeLists, 2)
       cmakeLists.write(f"find_library( {FileWriteUtils.mangleLibName(importedLib.name, i)}")
       cmakeLists.write(f"\n\tNAMES {importedLib.libraryFiles[i]}")
-      cmakeLists.write(f"\n\tPATHS {FileWriteUtils.projectSourceDir}/{importedLib.dirContainingLibraryFiles}")
+
+      if importedLib.isExternalWithRoot() or not importedLib.isOutsideProjectTree:
+        pathPrefix = "" if importedLib.isOutsideProjectTree else FileWriteUtils.projectSourceDir + '/'
+        cmakeLists.write(f"\n\tPATHS {pathPrefix}{importedLib.dirContainingLibraryFiles}")
+
       cmakeLists.write('\n)')
 
     newlines(cmakeLists, 2)
@@ -296,28 +299,34 @@ def writeBuildTargets(allData: BuildData, cmakeLists):
   cmakeLists.write(f"\nmessage( {buildTypeMessage} )")
 
 def writeImportedLibCopyCommands(allData: BuildData, cmakeLists):
-  if allData.hasImportedLibraries():
+  # TODO: Make this one conditional. Obviously if there are no imported libraries
+  # there are also no libraries to copy.
+  # TODO: Move this if statement to the main file write function
+  if allData.hasImportedLibraries() and allData.hasCopiableImportedLibs():
     headerComment(cmakeLists, "IMPORTED LIBRARY COPY COMMANDS", False)
 
     for importedLib in allData.importedLibs:
-      newlines(cmakeLists, 2)
+      if importedLib.isExternalWithRoot() or not importedLib.isOutsideProjectTree:
+        newlines(cmakeLists, 2)
 
-      # Add command which copies all files from the specified "root directory" of the
-      # imported library into the executable directory, so that any shared libraries
-      # will be there
-      outputLinkedTo = allData.getOutputContainingLinkedLib(importedLib)
+        # Add command which copies all files from the specified "root directory" of the
+        # imported library into the executable directory, so that any shared libraries
+        # will be there
+        outputLinkedTo = allData.getOutputContainingLinkedLib(importedLib)
 
-      # Try to execute this command when an output which depends on this imported
-      # lib is rebuilt
-      if outputLinkedTo is None:
-        outputLinkedTo = allData.outputs[0].name
+        # Try to execute this command when an output which depends on this imported
+        # lib is rebuilt
+        if outputLinkedTo is None:
+          outputLinkedTo = allData.outputs[0].name
 
-      itemLabel(cmakeLists, f"Copy libaries imported by {importedLib.name} to executable output dir")
-      cmakeLists.write(f"add_custom_command(TARGET {outputLinkedTo.name} POST_BUILD")
-      cmakeLists.write(f"\n\tCOMMAND {inBraces('CMAKE_COMMAND')} -E copy_directory")
-      cmakeLists.write(f"\n\t\t{FileWriteUtils.projectSourceDir}/{importedLib.dirContainingLibraryFiles}")
-      cmakeLists.write(f"\n\t\t{FileWriteUtils.getOutputDir(outputLinkedTo.exeOutputDir)}")
-      cmakeLists.write("\n)")
+        fromPathPrefix = "" if importedLib.isOutsideProjectTree else FileWriteUtils.projectSourceDir + '/'
+
+        itemLabel(cmakeLists, f"Copy libaries imported by {importedLib.name} to executable output dir")
+        cmakeLists.write(f"add_custom_command(TARGET {outputLinkedTo.name} POST_BUILD")
+        cmakeLists.write(f"\n\tCOMMAND {inBraces('CMAKE_COMMAND')} -E copy_directory")
+        cmakeLists.write(f"\n\t\t{fromPathPrefix}{importedLib.dirContainingLibraryFiles}")
+        cmakeLists.write(f"\n\t\t{FileWriteUtils.getOutputDir(outputLinkedTo.exeOutputDir)}")
+        cmakeLists.write("\n)")
 
 # ////////////////////////////////////////////////////////////////////////////////
 # THE MAIN FILE WRITE FUNCTION
