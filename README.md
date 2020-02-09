@@ -32,8 +32,8 @@ targets (such as *Debug* and *Release* builds), which files should be compiled i
 - [X] Retrieve imported libraries from a specified git link
 - [X] Change default C standard to C99
 - [X] If a default language standard is specified and no supported language standards were specified, use that as the single supported language standard
+- [X] Allow imported libraries to be imported from outside the project tree. **NOTE** that header files must still be in the project tree
 - [ ] Create an example project in github and link it in this README
-- [ ] Allow imported libraries to be imported from outside the project tree
 - [ ] Allow file names to be specified using a json object.
 
 **Ex:** 
