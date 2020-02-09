@@ -46,7 +46,8 @@ class BuildData:
   # Call at the end of loadImportedLibs
   def createImportedLibraryDirs(self):
     for importedLib in self.importedLibs:
-      FileHelper.createDirPath(f"{Globals.DEPENDENCY_DIR}/{Globals.DEPENDENCY_LIB_DIR}/{importedLib.name}")
+      if not importedLib.isOutsideProjectTree:
+        FileHelper.createDirPath(f"{Globals.DEPENDENCY_DIR}/{Globals.DEPENDENCY_LIB_DIR}/{importedLib.name}")
       FileHelper.createDirPath(f"{Globals.DEPENDENCY_DIR}/{Globals.DEPENDENCY_INCLUDE_DIR}/{importedLib.name}")
 
   def hasSharedLibOutputs(self) -> bool:
