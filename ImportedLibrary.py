@@ -12,6 +12,8 @@ class ImportedLibrary:
     self.headers = [ ]
     self.includeDirs = [ ]
 
+    self.generatedDepDirname = self.name
+
     self.gitRepoToClone = None
     # Clone imported repos by default
     self.shouldCloneRepo = True
@@ -25,12 +27,11 @@ class ImportedLibrary:
 
     self.loadHeaders(importedLibData)
     self.loadIncludeDirs(importedLibData)
-    # Must be called before loading root dir
-    self.loadIsOutsideProjectTree(importedLibData)
     self.loadRootDir(importedLibData)
     self.loadLibraryFiles(importedLibData)
     self.loadGitRepoToClone(importedLibData)
     self.loadDownloadLink(importedLibData)
+    self.loadGeneratedDirname(importedLibData)
 
   # UTILS
   def hasHeaders(self):
@@ -50,6 +51,9 @@ class ImportedLibrary:
     self.includeDirs = FileRetriever.getIncludeDirs(importedLibData)
 
   def loadRootDir(self, importedLibData):
+    # Must be called before loading root dir, otherwise the root dir will not be resolved properly
+    self.loadIsOutsideProjectTree(importedLibData)
+
     if Tags.IMPORT_ROOT_DIR in importedLibData:
       if self.isOutsideProjectTree:
         self.dirContainingLibraryFiles = FileHelper.getAbsoluteExternalPath(importedLibData[Tags.IMPORT_ROOT_DIR])
@@ -81,6 +85,11 @@ class ImportedLibrary:
     if Tags.IMPORT_DOWNLOAD_LINK in importedLibData:
       self.downloadLink = importedLibData[Tags.IMPORT_GIT_REPO]
 
+  # Called before loading root dir
   def loadIsOutsideProjectTree(self, importedLibData):
     if Tags.IMPORT_IS_OUTSIDE_PROJECT in importedLibData:
       self.isOutsideProjectTree = importedLibData[Tags.IMPORT_IS_OUTSIDE_PROJECT]
+
+  def loadGeneratedDirname(self, importedLibData):
+    if Tags.IMPORT_GENERATED_DIRNAME in importedLibData:
+      self.generatedDepDirname = importedLibData[Tags.IMPORT_GENERATED_DIRNAME]

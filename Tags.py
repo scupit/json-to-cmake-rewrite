@@ -48,6 +48,7 @@ IMPORT_SHOULD_CLONE_REPO = "cloneRepo"
 IMPORT_DOWNLOAD_LINK = "downloadLink"
 
 IMPORT_IS_OUTSIDE_PROJECT = "outsideProjectTree"
+IMPORT_GENERATED_DIRNAME = "generatedDirName"
 
 # Build Target attributes
 COMPILER_FLAGS = "compilerFlags"
