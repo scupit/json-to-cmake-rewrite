@@ -34,6 +34,34 @@ targets (such as *Debug* and *Release* builds), which files should be compiled i
 - [X] If a default language standard is specified and no supported language standards were specified, use that as the single supported language standard
 - [X] Allow imported libraries to be imported from outside the project tree. **NOTE** that header files must still be in the project tree
 - [ ] Create an example project in github and link it in this README
+- [ ] Add "debuggable" flag for executables to flag whether or not a debugger configuration should be build for them. This config does nothing for CMake, but could be helpful if you create a tool to generate debug configurations for your IDE (or vscode, for example)
+- [ ] Add "optional" boolean option for outputs, which determines whether or not the output should be built. Note that this option should be ignore if it is set to 'true' on a library which is a dependency of an execuatable being built.
+- [ ] Add "canToggleType" boolean option for output libraries, which can switch whether the library is build as static or shared.
+- [ ] Add "outputGroups", which is just output items grouped under a common name. This will make grouping optional outputs much easier, especially when creating several test execuatables. **Each output in the output group should be same type (either executable or library)**
+
+**Ex:**
+```json
+{
+  "outputGroups": {
+    "tests": {
+      "outputs": {
+        "test_1": { "define-output-1": "..." },
+        "test_2": { "define-output-2": "..." }
+      },
+      "optional": true
+    }
+  }
+}
+```
+
+* All headers, sources, and include dirs defined inside the test group itself will apply to all output items in the group.
+* You should be able to link to both the output group and individual items inside the output group.
+  - When linking to the output group itself, the libaries will be linked to every output item in the group. Link to the *groupName*
+  - When linkin to an individual output item in the group, linking should be done to `groupName.outputName`. This will help with linking clarity
+* If the output group only contains libraries, you can link the output group to an executable output or an output group containing only executables.
+  - Same linking rule as above applies. When linking an individual library from a group, link `groupName.libName` to the target item.
+  - When linking the entire group to an item, just use the *groupName*
+
 - [ ] Allow file names to be specified using a json object.
 
 **Ex:** 
