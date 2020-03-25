@@ -40,6 +40,9 @@ EXE = "executable"
 SHARED_LIB = "sharedLib"
 STATIC_LIB = "staticLib"
 
+# Output Group Atributes
+GROUP_OUTPUTS = "outputs"
+
 # Imported library attributes
 IMPORT_ROOT_DIR = "rootDir"
 IMPORTED_LIB_FILES = "libFiles"

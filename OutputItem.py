@@ -3,47 +3,31 @@ import FileRetriever
 import Logger
 import Tags
 
-def hasAnySourceTags(outputData):
-  return Tags.R_SOURCE_DIRS in outputData\
-    or Tags.SOURCE_DIRS in outputData\
-    or Tags.INDIVIDUAL_SOURCES in outputData
-
-def hasAnyHeaderTags(outputData):
-  return Tags.R_HEADER_DIRS in outputData\
-    or Tags.HEADER_DIRS in outputData\
-    or Tags.INDIVIDUAL_HEADERS in outputData
-
 class OutputItem:
-  name = ""
-
-  sources = [ ]
-  headers = [ ]
-  includeDirs = [ ]
-
-  # List of references to ImportedLibs and OutputItems which are libraries
-  # These are not loaded in initially. They are added at a later phase by the
-  # BuildData class
-  linkedLibs = [ ]
-
-  isExe = False
-  isStaticLib = False
-  isSharedLib = False
-
-  exeOutputDir = "bin"
-  libOutputDir = "lib"
-  archiveOutputDir = "lib"
-
-  mainFile = None
-
   def __init__(self, name, outputData):
     self.name = name
+
+    # List of references to ImportedLibs and OutputItems which are libraries
+    # These are not loaded in initially. They are added at a later phase by the
+    # BuildData class
     self.linkedLibs = [ ]
+
+    self.isExe = False
+    self.isStaticLib = False
+    self.isSharedLib = False
+
+    self.exeOutputDir = "bin"
+    self.libOutputDir = "lib"
+    self.archiveOutputDir = "lib"
+
+    self.mainFile = None
 
     self.loadType(outputData)
     self.loadMainFile(outputData)
-    self.loadSources(outputData)
-    self.loadHeaders(outputData)
-    self.loadIncludeDirs(outputData)
+
+    self.sources = FileRetriever.getSourceFiles(outputData)
+    self.headers = FileRetriever.getHeaderFiles(outputData)
+    self.includeDirs = FileRetriever.getIncludeDirs(outputData)
 
   # UTILS
   
@@ -71,6 +55,9 @@ class OutputItem:
   def hasLinkedLibs(self):
     return len(self.linkedLibs) > 0
 
+  def isOfLibraryType(self) -> bool:
+    return self.isSharedLib or self.isStaticLib
+
   # LOAD FUNCTIONS
 
   def loadType(self, outputData):
@@ -89,12 +76,3 @@ class OutputItem:
   def loadMainFile(self, outputData):
     if self.isExe and Tags.MAIN_FILE in outputData:
       self.mainFile = outputData[Tags.MAIN_FILE]
-  
-  def loadSources(self, outputData):
-    self.sources = FileRetriever.getSourceFiles(outputData)
-
-  def loadHeaders(self, outputData):
-    self.headers = FileRetriever.getHeaderFiles(outputData)
-
-  def loadIncludeDirs(self, outputData):
-    self.includeDirs = FileRetriever.getIncludeDirs(outputData)
