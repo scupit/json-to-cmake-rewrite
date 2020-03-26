@@ -9,31 +9,36 @@ import Tags
 from BuildTarget import BuildTarget
 from ImportedLibrary import ImportedLibrary
 from OutputItem import OutputItem
+from OutputGroup import OutputGroup
 
 class BuildData:
-  cmakeVersion = Globals.CMAKE_VERSION
-
-  projectName = FileHelper.getProjectName()
-
-  defaultCppStandard = None
-  defaultCStandard = None
-
-  supportedCppStandards = [ ]
-  supportedCStandards = [ ]
-
-  outputs = [ ]
-  importedLibs = [ ]
-  buildTargets = [ ]
-
-  defaultBuildTarget = None
-
   def __init__(self):
+    self.cmakeVersion = Globals.CMAKE_VERSION
+
+    self.projectName = FileHelper.getProjectName()
+
+    self.defaultCppStandard = None
+    self.defaultCStandard = None
+
+    self.supportedCppStandards = [ ]
+    self.supportedCStandards = [ ]
+
+    self.outputs = [ ]
+    self.outputGroups = [ ]
+    self.importedLibs = [ ]
+    self.buildTargets = [ ]
+
+    self.defaultBuildTarget = None
+
     with open(FileHelper.getAbsolutePath(Globals.JSON_FILE_NAME)) as jsonFile:
       jsonData = json.load(jsonFile)
 
       self.loadProjectName(jsonData)
 
       self.loadOutputs(jsonData)
+      self.loadOutputGroups(jsonData)
+      self.validateOutputs()
+
       self.loadImportedLibs(jsonData)
 
       self.loadBuildTargets(jsonData)
@@ -42,6 +47,9 @@ class BuildData:
       self.linkLibsToOutputs(jsonData)
 
   # UTILS
+
+  def anyOutputsDefined(self):
+    return len(self.outputs) > 0 or len(self.outputGroups) > 0
 
   # Call at the end of loadImportedLibs
   def createImportedLibraryDirs(self):
@@ -188,11 +196,14 @@ class BuildData:
     self.loadDefaultStandards(jsonData)
 
   def loadOutputs(self, jsonData):
-    if not Tags.OUTPUT in jsonData or len(jsonData[Tags.OUTPUT]) == 0:
-      Logger.logIssueThenQuit(f"Must define at least one {Tags.OUTPUT}")
+    if Tags.OUTPUT in jsonData:
+      for name, outputData in jsonData[Tags.OUTPUT]:
+        self.outputs.append(OutputItem(name, outputData))
 
-    for name, outputData in jsonData[Tags.OUTPUT].items():
-      self.outputs.append(OutputItem(name, outputData))
+  def loadOutputGroups(self, jsonData):
+    if Tags.OUTPUT_GROUPS in jsonData:
+      for name, outputGroupData in jsonData[Tags.OUTPUT_GROUPS]:
+        self.outputGroups.append(OutputGroup(name, outputGroupData))
 
   def loadImportedLibs(self, jsonData):
     if Tags.IMPORTED_LIBRARIES in jsonData:
@@ -213,3 +224,22 @@ class BuildData:
       self.buildTargets.append(BuildTarget(name, buildTargetData))
 
     self.loadDefaultBuildTarget(jsonData)
+
+  # Call only after loading all outputs and outputGroups
+  def validateOutputs(self):
+    if not self.anyOutputsDefined():
+      Logger.logIssueThenQuit(f"Must define at least one {Tags.OUTPUT} or {Tags.OUTPUT_GROUPS}")
+
+    # Since outputs can now be defined in groups (outside of the single outputs object),
+    # we now need to check for name collisions. Check both group names and output names
+    outputNames = dict()
+
+    # self.outputs values come from a json object, so it's already guaranteed to have no duplicates
+    for output in self.outputs:
+      outputNames[output.name] = True
+
+    for group in self.outputGroups:
+      for output in group.outputs:
+        if output.name in outputNames:
+          Logger.logIssueThenQuit(f"Colliding output name \"{output.name}\" found in Output Group \"{group.name}\"")
+    

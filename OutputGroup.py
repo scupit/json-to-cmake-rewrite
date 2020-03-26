@@ -2,11 +2,13 @@ import FileRetriever
 import Logger
 import Tags
 from OutputItem import OutputItem
+from Globals import OUTPUT_GROUP_NAME_PREFIX
 
 class OutputGroup:
   def __init__(self, name, outputGroupItem):
-    self.name = name
+    self.name = OUTPUT_GROUP_NAME_PREFIX + name
 
+    self.linkedLibs = [ ]
     self.outputs = [ ]
 
     self.isExeType = False
@@ -31,6 +33,9 @@ class OutputGroup:
 
   def isLibraryType(self):
     return self.isStaticLibType or self.isSharedLibType
+
+  def hasLinkedLibs(self):
+    return len(self.linkedLibs) > 0
 
   def isOutputTypeCompatible(self, outputItem: OutputItem) -> bool:
     return self.isExeType and outputItem.isExe or self.isLibraryType() and outputItem.isOfLibraryType()
@@ -67,6 +72,9 @@ class OutputGroup:
       if not Tags.TYPE in outputData:
         outputData[Tags.TYPE] = self.getTypeString()
       self.outputs.append(OutputItem(name, outputData))
+
+    if len(self.outputs) == 0:
+      Logger.logIssueThenQuit(f"No outputs are defined for Output Group {self.name}")
 
     for outputItem in self.outputs:
       if not self.isOutputTypeCompatible(outputItem):

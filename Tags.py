@@ -41,6 +41,7 @@ SHARED_LIB = "sharedLib"
 STATIC_LIB = "staticLib"
 
 # Output Group Atributes
+OUTPUT_GROUPS = "outputGroups"
 GROUP_OUTPUTS = "outputs"
 
 # Imported library attributes
