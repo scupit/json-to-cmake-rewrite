@@ -6,7 +6,7 @@ from Globals import OUTPUT_GROUP_NAME_PREFIX
 
 class OutputGroup:
   def __init__(self, name, outputGroupItem):
-    self.name = OUTPUT_GROUP_NAME_PREFIX + name
+    self.name = name
 
     self.linkedLibs = [ ]
     self.outputs = [ ]
@@ -21,6 +21,9 @@ class OutputGroup:
 
     self.loadType(outputGroupItem)
     self.loadOutputs(outputGroupItem)
+  
+  def getPrefixedName(self):
+    return OUTPUT_GROUP_NAME_PREFIX + self.name
 
   def hasHeaders(self):
     return len(self.headers) > 0

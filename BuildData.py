@@ -3,6 +3,7 @@ import json
 import FileHelper
 import GitHelper
 import Globals
+import Linker
 import Logger
 import Tags
 
@@ -44,7 +45,8 @@ class BuildData:
       self.loadBuildTargets(jsonData)
       self.loadStandards(jsonData)
 
-      self.linkLibsToOutputs(jsonData)
+      if Tags.LINKS in jsonData:
+        Linker.linkLibrariesToOutputs(jsonData[Tags.LINKS], self.outputGroups, self.outputs, self.importedLibs)
 
   # UTILS
 
@@ -62,18 +64,33 @@ class BuildData:
     for output in self.outputs:
       if output.isSharedLib:
         return True
+
+    for group in self.outputGroups:
+      for output in group.outputs:
+        if output.isSharedLib:
+          return True
     return False
 
   def hasStaticLibOutputs(self) -> bool:
     for output in self.outputs:
       if output.isStaticLib:
         return True
+
+    for group in self.outputGroups:
+      for output in group.outputs:
+        if output.isStaticLib:
+          return True
     return False
 
   def hasExecutableOutputs(self) -> bool:
     for output in self.outputs:
       if output.isExe:
         return True
+
+    for group in self.outputGroups:
+      for output in group.outputs:
+        if output.isExe:
+          return True
     return False
 
   def hasImportedLibraries(self) -> bool:
@@ -85,17 +102,6 @@ class BuildData:
         return True
     return False
 
-  def getOutputByName(self, outputName: str) -> OutputItem:
-    for output in self.outputs:
-      if output.name == outputName:
-        return output
-    return None
-
-  def getImportedLibByName(self, importedLibName: str) -> ImportedLibrary:
-    for importedLib in self.importedLibs:
-      if importedLib.name == importedLibName:
-        return importedLib
-    return None
 
   def getOutputContainingLinkedLib(self, linkedLibSearchingFor) -> OutputItem:
     for output in self.outputs:
@@ -105,31 +111,6 @@ class BuildData:
     return None
 
   # LOAD FUNCTIONS
-
-  def linkLibsToOutputs(self, jsonData):
-    if Tags.LINKS in jsonData:
-      for outputName, linkedLibs in jsonData[Tags.LINKS].items():
-        outputLinkingTo = self.getOutputByName(outputName)
-
-        if outputLinkingTo is None:
-          Logger.logIssueThenQuit(f"Tried linking to output {outputName} which does not exist")
-
-        for linkedLibName in linkedLibs:
-          outputLibLinking = self.getOutputByName(linkedLibName)
-          importedLibLinking = self.getImportedLibByName(linkedLibName)
-
-          if not outputLibLinking is None:
-            if outputLibLinking.isSharedLib or outputLibLinking.isStaticLib:
-              if outputLinkingTo.isSharedLib or outputLinkingTo.isStaticLib:
-                Logger.logIssueThenQuit(f"Please don't link output library {linkedLibName} to {outputName}, as this could cause issues")
-              else:
-                outputLinkingTo.linkedLibs.append(outputLibLinking)
-            else:
-              Logger.logIssueThenQuit(f"Cannot link non-library output {linkedLibName} to {outputName}")
-          elif not importedLibLinking is None:
-            outputLinkingTo.linkedLibs.append(importedLibLinking)
-          else:
-            Logger.logIssueThenQuit(f"Cannot link nonexistent library {linkedLibName} to {outputName}")
 
   def loadProjectName(self, jsonData):
     if Tags.PROJECT_NAME in jsonData:
@@ -239,6 +220,8 @@ class BuildData:
       outputNames[output.name] = True
 
     for group in self.outputGroups:
+      if group.name in outputNames:
+        Logger.logIssueThenQuit(f"Group name {group.name} collides with an output name")
       for output in group.outputs:
         if output.name in outputNames:
           Logger.logIssueThenQuit(f"Colliding output name \"{output.name}\" found in Output Group \"{group.name}\"")
