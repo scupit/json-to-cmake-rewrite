@@ -71,7 +71,7 @@ class OutputGroup:
     if not Tags.GROUP_OUTPUTS in outputGroupItem:
       Logger.logIssueThenQuit(f"Output group {self.name} missing {Tags.GROUP_OUTPUTS}")
 
-    for name, outputData in outputGroupItem[Tags.GROUP_OUTPUTS]:
+    for name, outputData in outputGroupItem[Tags.GROUP_OUTPUTS].items():
       # Give each output the group's type if one is not present.
       # NOTE: Also avoids OutputItem construction error
       if not Tags.TYPE in outputData:

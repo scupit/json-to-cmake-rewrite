@@ -182,7 +182,7 @@ def writeExe(exeItem: OutputItem, allData: BuildData, cmakeLists, containingGrou
 
 def writeGeneralGroupData(group: OutputGroup, allData: BuildData, cmakeLists):
   groupName = group.getPrefixedName()
-  itemLabel(f"Output Group {groupName}")
+  itemLabel(cmakeLists, f"Output Group {groupName}")
 
   # Write headers
   group.headers.sort()
@@ -227,12 +227,15 @@ def writeLibraryGroup(group: OutputGroup, allData: BuildData, cmakeLists):
     else:
       writeSharedLib(output, allData, cmakeLists, group)
 
+    newlines(cmakeLists, 2)
+
 def writeExeGroup(group: OutputGroup, allData: BuildData, cmakeLists):
   writeGeneralGroupData(group, allData, cmakeLists)
   newlines(cmakeLists, 2)
 
   for output in group.outputs:
     writeExe(output, allData, cmakeLists, group)
+    newlines(cmakeLists, 2)
 
 def writeOutputGroups(data: BuildData, cmakeLists):
   headerComment(cmakeLists, f"LIBRARY OUTPUT GROUPS {conditionalNoneText(data.hasLibOutputGroups())}")

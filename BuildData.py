@@ -175,12 +175,12 @@ class BuildData:
 
   def loadOutputs(self, jsonData):
     if Tags.OUTPUT in jsonData:
-      for name, outputData in jsonData[Tags.OUTPUT]:
+      for name, outputData in jsonData[Tags.OUTPUT].items():
         self.outputs.append(OutputItem(name, outputData))
 
   def loadOutputGroups(self, jsonData):
     if Tags.OUTPUT_GROUPS in jsonData:
-      for name, outputGroupData in jsonData[Tags.OUTPUT_GROUPS]:
+      for name, outputGroupData in jsonData[Tags.OUTPUT_GROUPS].items():
         self.outputGroups.append(OutputGroup(name, outputGroupData))
 
   def loadImportedLibs(self, jsonData):
