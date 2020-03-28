@@ -12,6 +12,8 @@ class OutputItem:
     # BuildData class
     self.linkedLibs = [ ]
 
+    self.linkedGroups = [ ]
+
     self.isExe = False
     self.isStaticLib = False
     self.isSharedLib = False
@@ -31,15 +33,16 @@ class OutputItem:
 
   # UTILS
   
-  def hasSources(self):
-    for linkedLib in self.linkedLibs:
-      if isinstance(linkedLib, OutputItem) and linkedLib.hasSources():
-        return True
-    return len(self.sources) > 0
-  
   def hasHeaders(self):
     for linkedLib in self.linkedLibs:
       if linkedLib.hasHeaders():
+        return True
+
+    for linkedGroup in self.linkedGroups:
+      for output in linkedGroup.outputs:
+        if output.hasHeaders():
+          return True
+      if linkedGroup.hasHeaders():
         return True
     return len(self.headers) > 0
 
@@ -47,16 +50,33 @@ class OutputItem:
     for linkedLib in self.linkedLibs:
       if linkedLib.hasIncludeDirs():
         return True
+
+    for linkedGroup in self.linkedGroups:
+      for output in linkedGroup.outputs:
+        if output.hasIncludeDirs():
+          return True
+      if linkedGroup.hasIncludeDirs():
+        return True
     return len(self.includeDirs) > 0
 
   def hasMainFile(self):
     return not self.mainFile is None
 
   def hasLinkedLibs(self):
-    return len(self.linkedLibs) > 0
+    return len(self.linkedGroups) > 0 or len(self.linkedLibs) > 0
 
   def isOfLibraryType(self) -> bool:
     return self.isSharedLib or self.isStaticLib
+
+  # libToLink is OutputItem type
+  def linkLib(self, libToLink):
+    self.linkedLibs.append(libToLink)
+
+  # groupToLink is OutputGroup type
+  def linkGroup(self, groupToLink):
+    self.linkedGroups.append(groupToLink)
+    # for libToLink in groupToLink.outputs:
+    #   self.linkLib(libToLink)
 
   # LOAD FUNCTIONS
 

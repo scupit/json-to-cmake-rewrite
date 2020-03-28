@@ -11,6 +11,7 @@ class OutputGroup:
     self.areLinkedLibsMerged = False
 
     self.linkedLibs = [ ]
+    self.linkedGroups = [ ]
     self.outputs = [ ]
 
     self.isExeType = False
@@ -28,14 +29,29 @@ class OutputGroup:
     return OUTPUT_GROUP_NAME_PREFIX + self.name
 
   def hasHeaders(self):
+    for linkedLib in self.linkedLibs:
+      if linkedLib.hasHeaders():
+        return True
+
+    for group in self.linkedGroups:
+      for output in group.outputs:
+        if output.hasHeaders():
+          return True
+      if group.hasHeaders():
+        return True
     return len(self.headers) > 0
-  
-  def hasSources(self):
-    return len(self.sources) > 0
   
   def hasIncludeDirs(self):
     for linkedLib in self.linkedLibs:
       if linkedLib.hasIncludeDirs():
+        return True
+
+    for linkedGroup in self.linkedGroups:
+      for output in linkedGroup.outputs:
+        if output.hasIncludeDirs():
+          return True
+
+      if linkedGroup.hasIncludeDirs():
         return True
     return len(self.includeDirs) > 0
 
@@ -43,7 +59,7 @@ class OutputGroup:
     return self.isStaticLibType or self.isSharedLibType
 
   def hasLinkedLibs(self):
-    return len(self.linkedLibs) > 0
+    return len(self.linkedGroups) > 0 or len(self.linkedLibs) > 0
 
   def isOutputTypeCompatible(self, outputItem: OutputItem) -> bool:
     return self.isExeType and outputItem.isExe or self.isLibraryType() and outputItem.isOfLibraryType()
@@ -55,6 +71,15 @@ class OutputGroup:
       return Tags.SHARED_LIB
     else:
       return Tags.STATIC_LIB
+
+  def linkLib(self, libToLink: OutputItem):
+    self.linkedLibs.append(libToLink)
+  
+  # groupToLink is OutputGruop type
+  def linkGroup(self, groupToLink):
+    self.linkedGroups.append(groupToLink)
+    # for libToLink in groupToLink.outputs:
+    #   self.linkedLibs.append(groupToLink)
 
   # Call before other load functions in constructor
   def loadType(self, outputGroupItem):

@@ -222,4 +222,8 @@ class BuildData:
       for output in group.outputs:
         if output.name in outputNames:
           Logger.logIssueThenQuit(f"Colliding output name \"{output.name}\" found in Output Group \"{group.name}\"")
+
+    for importedLib in self.importedLibs:
+      if importedLib.name in outputNames:
+        Logger.logIssueThenQuit(f"Imported Library name \"{importedLib.name}\" collides with an existing output or group name")
     

@@ -50,17 +50,16 @@ def linkToIndividualOutput(linkedLibNames, outputGroups, outputItems, importedLi
       elif outputItemLinkingTo.isOfLibraryType():
         Logger.logIssueThenQuit(f"Please don't link output library \"{linkedLibName}\" to another output library ({toLinkName})")
       else:
-        outputItemLinkingTo.linkedLibs.append(libLinking)
+        outputItemLinkingTo.linkLib(libLinking)
     elif not groupLinking is None:
       if groupLinking.isExeType:
         Logger.logIssueThenQuit(f"Cannot link exe type group {linkedLibName} to {toLinkName}")
       elif outputItemLinkingTo.isOfLibraryType():
         Logger.logIssueThenQuit(f"Please don't link output library group \"{linkedLibName}\" to another output library ({toLinkName})")
       else:
-        for lib in groupLinking.outputs:
-          outputItemLinkingTo.linkedLibs.append(lib)
+        outputItemLinkingTo.linkGroup(groupLinking)
     elif not importedLibLinking is None:
-      outputItemLinkingTo.linkedLibs.append(importedLibLinking)
+      outputItemLinkingTo.linkLib(importedLibLinking)
     else:
       Logger.logIssueThenQuit(f"Cannot link nonexistent library or group {linkedLibName} to {toLinkName}")
 
@@ -76,17 +75,16 @@ def linkToOutputGroup(linkedLibNames, outputGroups, outputItems, importedLibrari
       elif outputGroupLinkingTo.isLibraryType():
         Logger.logIssueThenQuit(f"Please don't link output library \"{linkedLibName}\" to an output library group ({toLinkName})")
       else:
-        outputGroupLinkingTo.linkedLibs.append(libLinking)
+        outputGroupLinkingTo.linkLib(libLinking)
     elif not groupLinking is None:
       if groupLinking.isExeType:
         Logger.logIssueThenQuit(f"Cannot link exe type group {linkedLibName} to {toLinkName}")
       elif outputGroupLinkingTo.isLibraryType():
         Logger.logIssueThenQuit(f"Please don't link output library group \"{linkedLibName}\" to another output library group ({toLinkName})")
       else:
-        for lib in groupLinking.outputs:
-          outputGroupLinkingTo.linkedLibs.append(lib)
+        outputGroupLinkingTo.linkGroup(groupLinking)
     elif not importedLibLinking is None:
-      outputGroupLinkingTo.linkedLibs.append(importedLibLinking)
+      outputGroupLinkingTo.linkLib(importedLibLinking)
     else:
       Logger.logIssueThenQuit(f"Cannot link nonexistent library or group {linkedLibName} to {toLinkName}")
 

@@ -111,9 +111,16 @@ def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists, containingG
   cmakeLists.write(f"set( {headersVariable(outputData.name)}")
   if not containingGroup is None:
     cmakeLists.write(f"\n\t{inBraces(headersVariable(containingGroup.getPrefixedName()))}")
+
   for linkedLib in outputData.linkedLibs:
     if linkedLib.hasHeaders():
       cmakeLists.write(f"\n\t{inBraces(headersVariable(linkedLib.name))}")
+  
+  for linkedGroup in outputData.linkedGroups:
+    for output in linkedGroup.outputs:
+      if output.hasHeaders() or linkedGroup.hasHeaders():
+        cmakeLists.write(f"\n\t{inBraces(headersVariable(output.name))}")
+
   for headerFile in outputData.headers:
     cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{headerFile}")
   cmakeLists.write('\n)')
@@ -140,9 +147,16 @@ def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists, containingG
   cmakeLists.write(f"set( {includeDirsVariable(outputData.name)}")
   if not containingGroup is None:
     cmakeLists.write(f"\n\t{inBraces(includeDirsVariable(containingGroup.getPrefixedName()))}")
+
   for linkedLib in outputData.linkedLibs:
     if linkedLib.hasIncludeDirs():
       cmakeLists.write(f"\n\t{inBraces(includeDirsVariable(linkedLib.name))}")
+
+  for linkedGroup in outputData.linkedGroups:
+    for output in linkedGroup.outputs:
+      if output.hasIncludeDirs() or linkedGroup.hasIncludeDirs():
+        cmakeLists.write(f"\n\t{inBraces(includeDirsVariable(output.name))}")
+  
   for includeDir in outputData.includeDirs:
     cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{includeDir}")
   cmakeLists.write('\n)')
@@ -193,6 +207,12 @@ def writeGeneralGroupData(group: OutputGroup, allData: BuildData, cmakeLists):
   for linkedLib in group.linkedLibs:
     if linkedLib.hasHeaders():
       cmakeLists.write(f"\n\t{inBraces(headersVariable(linkedLib.name))}")
+
+  for linkedGroup in group.linkedGroups:
+    for output in linkedGroup.outputs:
+      if output.hasHeaders() or linkedGroup.hasHeaders():
+        cmakeLists.write(f"\n\t{inBraces(headersVariable(output.name))}")
+
   for headerFile in group.headers:
     cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{headerFile}")
   cmakeLists.write('\n)')
@@ -216,6 +236,12 @@ def writeGeneralGroupData(group: OutputGroup, allData: BuildData, cmakeLists):
   for linkedLib in group.linkedLibs:
     if linkedLib.hasIncludeDirs():
       cmakeLists.write(f"\n\t{inBraces(includeDirsVariable(linkedLib.name))}")
+
+  for linkedGroup in group.linkedGroups:
+    for output in linkedGroup.outputs:
+      if output.hasHeaders() or linkedGroup.hasHeaders():
+        cmakeLists.write(f"\n\t{inBraces(includeDirsVariable(output.name))}")
+
   for includeDir in group.includeDirs:
     cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{includeDir}")
   cmakeLists.write('\n)')
