@@ -8,6 +8,8 @@ class OutputGroup:
   def __init__(self, name, outputGroupItem):
     self.name = name
 
+    self.areLinkedLibsMerged = False
+
     self.linkedLibs = [ ]
     self.outputs = [ ]
 

@@ -64,33 +64,30 @@ class BuildData:
     for output in self.outputs:
       if output.isSharedLib:
         return True
-
-    for group in self.outputGroups:
-      for output in group.outputs:
-        if output.isSharedLib:
-          return True
     return False
 
   def hasStaticLibOutputs(self) -> bool:
     for output in self.outputs:
       if output.isStaticLib:
         return True
-
-    for group in self.outputGroups:
-      for output in group.outputs:
-        if output.isStaticLib:
-          return True
     return False
 
   def hasExecutableOutputs(self) -> bool:
     for output in self.outputs:
       if output.isExe:
         return True
+    return False
 
+  def hasExeOutputGroups(self) -> bool:
     for group in self.outputGroups:
-      for output in group.outputs:
-        if output.isExe:
-          return True
+      if group.isExeType:
+        return True
+    return False
+
+  def hasLibOutputGroups(self) -> bool:
+    for group in self.outputGroups:
+      if group.isLibraryType():
+        return True
     return False
 
   def hasImportedLibraries(self) -> bool:

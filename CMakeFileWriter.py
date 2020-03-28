@@ -6,6 +6,7 @@ import Globals
 from BuildData import BuildData
 from ImportedLibrary import ImportedLibrary
 from OutputItem import OutputItem
+from OutputGroup import OutputGroup
 
 def conditionalNoneText(x: bool) -> str:
   return "" if x else "(none)"
@@ -97,7 +98,7 @@ def writeImportedLibs(data: BuildData, cmakeLists):
 
     newlines(cmakeLists, 2)
 
-def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists):
+def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists, containingGroup: OutputGroup = None):
   if outputData.isExe:
     itemLabel(cmakeLists, f"Output executable: {outputData.name}")
   elif outputData.isSharedLib:
@@ -108,6 +109,8 @@ def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists):
   # Write headers
   outputData.headers.sort()
   cmakeLists.write(f"set( {headersVariable(outputData.name)}")
+  if not containingGroup is None:
+    cmakeLists.write(f"\n\t{inBraces(headersVariable(containingGroup.getPrefixedName()))}")
   for linkedLib in outputData.linkedLibs:
     if linkedLib.hasHeaders():
       cmakeLists.write(f"\n\t{inBraces(headersVariable(linkedLib.name))}")
@@ -122,6 +125,8 @@ def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists):
   cmakeLists.write(f"set( {sourcesVariable(outputData.name)}")
   if outputData.hasHeaders():
     cmakeLists.write(f"\n\t{inBraces(headersVariable(outputData.name))}")
+  if not containingGroup is None:
+    cmakeLists.write(f"\n\t{inBraces(sourcesVariable(containingGroup.getPrefixedName()))}")
   if outputData.isExe and outputData.hasMainFile():
     cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{outputData.mainFile}")
   for sourceFile in outputData.sources:
@@ -133,6 +138,8 @@ def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists):
   # Write include dirs
   outputData.includeDirs.sort()
   cmakeLists.write(f"set( {includeDirsVariable(outputData.name)}")
+  if not containingGroup is None:
+    cmakeLists.write(f"\n\t{inBraces(includeDirsVariable(containingGroup.getPrefixedName()))}")
   for linkedLib in outputData.linkedLibs:
     if linkedLib.hasIncludeDirs():
       cmakeLists.write(f"\n\t{inBraces(includeDirsVariable(linkedLib.name))}")
@@ -140,8 +147,8 @@ def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists):
     cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{includeDir}")
   cmakeLists.write('\n)')
 
-def writeSharedLib(sharedLib: OutputItem, allData: BuildData, cmakeLists):
-  writeGeneralOutputData(sharedLib, allData, cmakeLists)
+def writeSharedLib(sharedLib: OutputItem, allData: BuildData, cmakeLists, containingGroup: OutputGroup = None):
+  writeGeneralOutputData(sharedLib, allData, cmakeLists, containingGroup)
   newlines(cmakeLists, 2)
 
   cmakeLists.write(f"add_library( {sharedLib.name} SHARED {inBraces(sourcesVariable(sharedLib.name))} )")
@@ -151,8 +158,8 @@ def writeSharedLib(sharedLib: OutputItem, allData: BuildData, cmakeLists):
   newlines(cmakeLists, 2)
   writeOutputDirs(sharedLib, cmakeLists)
 
-def writeStaticLib(staticLib: OutputItem, allData: BuildData, cmakeLists):
-  writeGeneralOutputData(staticLib, allData, cmakeLists)
+def writeStaticLib(staticLib: OutputItem, allData: BuildData, cmakeLists, containingGroup: OutputGroup = None):
+  writeGeneralOutputData(staticLib, allData, cmakeLists, containingGroup)
   newlines(cmakeLists, 2)
 
   cmakeLists.write(f"add_library( {staticLib.name} STATIC {inBraces(sourcesVariable(staticLib.name))} )")
@@ -162,8 +169,8 @@ def writeStaticLib(staticLib: OutputItem, allData: BuildData, cmakeLists):
   newlines(cmakeLists, 2)
   writeOutputDirs(staticLib, cmakeLists)
 
-def writeExe(exeItem: OutputItem, allData: BuildData, cmakeLists):
-  writeGeneralOutputData(exeItem, allData, cmakeLists)
+def writeExe(exeItem: OutputItem, allData: BuildData, cmakeLists, containingGroup: OutputGroup = None):
+  writeGeneralOutputData(exeItem, allData, cmakeLists, containingGroup)
   newlines(cmakeLists, 2)
 
   cmakeLists.write(f"add_executable( {exeItem.name} {inBraces(sourcesVariable(exeItem.name))} )")
@@ -173,8 +180,72 @@ def writeExe(exeItem: OutputItem, allData: BuildData, cmakeLists):
   newlines(cmakeLists, 2)
   writeOutputDirs(exeItem, cmakeLists)
 
-def writeOutputs(data: BuildData, cmakeLists):
+def writeGeneralGroupData(group: OutputGroup, allData: BuildData, cmakeLists):
+  groupName = group.getPrefixedName()
+  itemLabel(f"Output Group {groupName}")
 
+  # Write headers
+  group.headers.sort()
+  cmakeLists.write(f"set( {headersVariable(groupName)}")
+  for linkedLib in group.linkedLibs:
+    if linkedLib.hasHeaders():
+      cmakeLists.write(f"\n\t{inBraces(headersVariable(linkedLib.name))}")
+  for headerFile in group.headers:
+    cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{headerFile}")
+  cmakeLists.write('\n)')
+
+  newlines(cmakeLists, 2)
+
+  # Write sources, which include the item's headers
+  group.sources.sort()
+  cmakeLists.write(f"set( {sourcesVariable(groupName)}")
+  if group.hasHeaders():
+    cmakeLists.write(f"\n\t{inBraces(headersVariable(groupName))}")
+  for sourceFile in group.sources:
+    cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{sourceFile}")
+  cmakeLists.write('\n)')
+
+  newlines(cmakeLists, 2)
+
+  # Write include dirs
+  group.includeDirs.sort()
+  cmakeLists.write(f"set( {includeDirsVariable(groupName)}")
+  for linkedLib in group.linkedLibs:
+    if linkedLib.hasIncludeDirs():
+      cmakeLists.write(f"\n\t{inBraces(includeDirsVariable(linkedLib.name))}")
+  for includeDir in group.includeDirs:
+    cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{includeDir}")
+  cmakeLists.write('\n)')
+
+def writeLibraryGroup(group: OutputGroup, allData: BuildData, cmakeLists):
+  writeGeneralGroupData(group, allData, cmakeLists)
+  newlines(cmakeLists, 2)
+
+  for output in group.outputs:
+    if output.isStaticLib:
+      writeStaticLib(output, allData, cmakeLists, group)
+    else:
+      writeSharedLib(output, allData, cmakeLists, group)
+
+def writeExeGroup(group: OutputGroup, allData: BuildData, cmakeLists):
+  writeGeneralGroupData(group, allData, cmakeLists)
+  newlines(cmakeLists, 2)
+
+  for output in group.outputs:
+    writeExe(output, allData, cmakeLists, group)
+
+def writeOutputGroups(data: BuildData, cmakeLists):
+  headerComment(cmakeLists, f"LIBRARY OUTPUT GROUPS {conditionalNoneText(data.hasLibOutputGroups())}")
+  for libGroup in data.outputGroups:
+    if libGroup.isLibraryType():
+      writeLibraryGroup(libGroup, data, cmakeLists)
+
+  headerComment(cmakeLists, f"EXECUTABLE OUTPUT GROUPS {conditionalNoneText(data.hasExeOutputGroups())}")
+  for exeGroup in data.outputGroups:
+    if exeGroup.isExeType:
+      writeExeGroup(exeGroup, data, cmakeLists)
+
+def writeOutputs(data: BuildData, cmakeLists):
   headerComment(cmakeLists, f"OUTPUT SHARED LIBRARIES {conditionalNoneText(data.hasSharedLibOutputs())}")
   # Print shared libs
   for sharedLibOutput in data.outputs:
@@ -189,6 +260,8 @@ def writeOutputs(data: BuildData, cmakeLists):
       writeStaticLib(staticLibOutput, data, cmakeLists)
       newlines(cmakeLists, 2)
 
+  writeOutputGroups(data, cmakeLists)
+
   headerComment(cmakeLists, f"OUTPUT EXECUTABLES {conditionalNoneText(data.hasExecutableOutputs())}")
   # Print executables
   for exeOutput in data.outputs:
@@ -196,22 +269,31 @@ def writeOutputs(data: BuildData, cmakeLists):
       writeExe(exeOutput, data, cmakeLists)
       newlines(cmakeLists, 2)
 
+def writeSingleLink(targetItemName: str, linkedLibs: list, cmakeLists):
+  cmakeLists.write(f"target_link_libraries( {targetItemName}")
+
+  for linkedLibrary in linkedLibs:
+    if isinstance(linkedLibrary, OutputItem):
+      cmakeLists.write(f"\n\t{linkedLibrary.name} ")
+    elif isinstance(linkedLibrary, ImportedLibrary):
+      for i in range(0, len(linkedLibrary.libraryFiles)):
+        cmakeLists.write(f"\n\t{inBraces(FileWriteUtils.mangleLibName(linkedLibrary.name, i))}")
+
+  cmakeLists.write('\n)')
+  newlines(cmakeLists, 2)
+
+
 def writeLinks(allData: BuildData, cmakeLists):
   headerComment(cmakeLists, "LINK LIBRARIES TO OUTPUTS")
 
+  for group in allData.outputGroups:
+    for output in group.outputs:
+      if group.hasLinkedLibs() or output.hasLinkedLibs():
+        writeSingleLink(output.name, group.linkedLibs + output.linkedLibs, cmakeLists)
+    
   for outputItem in allData.outputs:
     if outputItem.hasLinkedLibs():
-      cmakeLists.write(f"target_link_libraries( {outputItem.name}")
-
-      for linkedLibrary in outputItem.linkedLibs:
-        if isinstance(linkedLibrary, OutputItem):
-          cmakeLists.write(f"\n\t{linkedLibrary.name} ")
-        elif isinstance(linkedLibrary, ImportedLibrary):
-          for i in range(0, len(linkedLibrary.libraryFiles)):
-            cmakeLists.write(f"\n\t{inBraces(FileWriteUtils.mangleLibName(linkedLibrary.name, i))}")
-
-      cmakeLists.write('\n)')
-      newlines(cmakeLists, 2)
+      writeSingleLink(outputItem.name, outputItem.linkedLibs, cmakeLists)
 
 def writeStandards(allData: BuildData, cmakeLists):
   headerComment(cmakeLists, "LANGUAGE STANDARDS")
