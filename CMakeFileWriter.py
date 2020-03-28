@@ -123,7 +123,7 @@ def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists, containingG
   # Write sources, which include the item's headers
   outputData.sources.sort()
   cmakeLists.write(f"set( {sourcesVariable(outputData.name)}")
-  if outputData.hasHeaders():
+  if outputData.hasHeaders() or not containingGroup is None:
     cmakeLists.write(f"\n\t{inBraces(headersVariable(outputData.name))}")
   if not containingGroup is None:
     cmakeLists.write(f"\n\t{inBraces(sourcesVariable(containingGroup.getPrefixedName()))}")
@@ -147,12 +147,15 @@ def writeGeneralOutputData(outputData: OutputItem, data, cmakeLists, containingG
     cmakeLists.write(f"\n\t{FileWriteUtils.projectSourceDir}/{includeDir}")
   cmakeLists.write('\n)')
 
+def outputWillHaveIncludeDirs(output: OutputItem, containingGroup: OutputGroup) -> bool:
+  return output.hasIncludeDirs() or (not containingGroup is None and containingGroup.hasIncludeDirs())
+
 def writeSharedLib(sharedLib: OutputItem, allData: BuildData, cmakeLists, containingGroup: OutputGroup = None):
   writeGeneralOutputData(sharedLib, allData, cmakeLists, containingGroup)
   newlines(cmakeLists, 2)
 
   cmakeLists.write(f"add_library( {sharedLib.name} SHARED {inBraces(sourcesVariable(sharedLib.name))} )")
-  if sharedLib.hasIncludeDirs():
+  if outputWillHaveIncludeDirs(sharedLib, containingGroup):
     cmakeLists.write(f"\ntarget_include_directories( {sharedLib.name} PRIVATE {inBraces(includeDirsVariable(sharedLib.name))} )")
 
   newlines(cmakeLists, 2)
@@ -163,7 +166,7 @@ def writeStaticLib(staticLib: OutputItem, allData: BuildData, cmakeLists, contai
   newlines(cmakeLists, 2)
 
   cmakeLists.write(f"add_library( {staticLib.name} STATIC {inBraces(sourcesVariable(staticLib.name))} )")
-  if staticLib.hasIncludeDirs():
+  if outputWillHaveIncludeDirs(staticLib, containingGroup):
     cmakeLists.write(f"\ntarget_include_directories( {staticLib.name} PRIVATE {inBraces(includeDirsVariable(staticLib.name))} )")
 
   newlines(cmakeLists, 2)
@@ -174,7 +177,7 @@ def writeExe(exeItem: OutputItem, allData: BuildData, cmakeLists, containingGrou
   newlines(cmakeLists, 2)
 
   cmakeLists.write(f"add_executable( {exeItem.name} {inBraces(sourcesVariable(exeItem.name))} )")
-  if exeItem.hasIncludeDirs():
+  if outputWillHaveIncludeDirs(exeItem, containingGroup):
     cmakeLists.write(f"\ntarget_include_directories( {exeItem.name} PRIVATE {inBraces(includeDirsVariable(exeItem.name))} )")
 
   newlines(cmakeLists, 2)

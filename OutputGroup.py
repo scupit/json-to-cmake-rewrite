@@ -34,6 +34,9 @@ class OutputGroup:
     return len(self.sources) > 0
   
   def hasIncludeDirs(self):
+    for linkedLib in self.linkedLibs:
+      if linkedLib.hasIncludeDirs():
+        return True
     return len(self.includeDirs) > 0
 
   def isLibraryType(self):

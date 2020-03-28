@@ -92,9 +92,9 @@ def linkToOutputGroup(linkedLibNames, outputGroups, outputItems, importedLibrari
 
 # This is the main linking function
 def linkLibrariesToOutputs(linkData, outputGroups, outputItems, importedLibraries):
-  for nameLinkingTo, linkedLibNames in linkData:
-    outputLinkingTo = getOutputByName(nameLinkingTo)
-    groupLinkingTo = getOutputGroupByName(nameLinkingTo)
+  for nameLinkingTo, linkedLibNames in linkData.items():
+    outputLinkingTo = getOutputByName(outputGroups, outputItems, nameLinkingTo)
+    groupLinkingTo = getOutputGroupByName(outputGroups, nameLinkingTo)
 
     if not outputLinkingTo is None:
       linkToIndividualOutput(linkedLibNames, outputGroups, outputItems, importedLibraries, outputLinkingTo, nameLinkingTo)
