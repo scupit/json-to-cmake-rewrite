@@ -419,26 +419,28 @@ def writeImportedLibCopyCommands(allData: BuildData, cmakeLists):
 
   for importedLib in allData.importedLibs:
     if importedLib.isExternalWithRoot() or not importedLib.isOutsideProjectTree:
-      newlines(cmakeLists, 2)
 
       # Add command which copies all files from the specified "root directory" of the
       # imported library into the executable directory, so that any shared libraries
       # will be there
-      outputLinkedTo = allData.getOutputContainingLinkedLib(importedLib)
+      outputsLinkedTo = allData.getExesPartOfLinkTree(importedLib)
 
-      # Try to execute this command when an output which depends on this imported
-      # lib is rebuilt
-      if outputLinkedTo is None:
-        outputLinkedTo = allData.outputs[0].name
+      if len(outputsLinkedTo) == 0:
+        if len(allData.outputs) != 0:
+          outputsLinkedTo = [allData.outputs[0]]
+        else:
+          outputsLinkedTo = [allData.outputGroups[0].outputs[0]]
 
-      fromPathPrefix = "" if importedLib.isOutsideProjectTree else FileWriteUtils.projectSourceDir + '/'
+      for outputLinkedTo in outputsLinkedTo:
+        newlines(cmakeLists, 2)
+        fromPathPrefix = "" if importedLib.isOutsideProjectTree else FileWriteUtils.projectSourceDir + '/'
 
-      itemLabel(cmakeLists, f"Copy libaries imported by {importedLib.name} to executable output dir")
-      cmakeLists.write(f"add_custom_command(TARGET {outputLinkedTo.name} POST_BUILD")
-      cmakeLists.write(f"\n\tCOMMAND {inBraces('CMAKE_COMMAND')} -E copy_directory")
-      cmakeLists.write(f"\n\t\t{fromPathPrefix}{importedLib.dirContainingLibraryFiles}")
-      cmakeLists.write(f"\n\t\t{FileWriteUtils.getOutputDir(outputLinkedTo.exeOutputDir)}")
-      cmakeLists.write("\n)")
+        itemLabel(cmakeLists, f"Copy libaries imported by {importedLib.name} to executable output dir")
+        cmakeLists.write(f"add_custom_command(TARGET {outputLinkedTo.name} POST_BUILD")
+        cmakeLists.write(f"\n\tCOMMAND {inBraces('CMAKE_COMMAND')} -E copy_directory")
+        cmakeLists.write(f"\n\t\t{fromPathPrefix}{importedLib.dirContainingLibraryFiles}")
+        cmakeLists.write(f"\n\t\t{FileWriteUtils.getOutputDir(outputLinkedTo.exeOutputDir)}")
+        cmakeLists.write("\n)")
 
 # ////////////////////////////////////////////////////////////////////////////////
 # THE MAIN FILE WRITE FUNCTION

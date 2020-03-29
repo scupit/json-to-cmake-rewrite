@@ -100,12 +100,18 @@ class BuildData:
     return False
 
 
-  def getOutputContainingLinkedLib(self, linkedLibSearchingFor) -> OutputItem:
+  def getExesPartOfLinkTree(self, linkedLibSearchingFor) -> list:
+    exesLinkedTo = [ ]
+
     for output in self.outputs:
-      for linkedLib in output.linkedLibs:
-        if linkedLib.name == linkedLibSearchingFor.name:
-          return output
-    return None
+      if output.isExe and output.isPartOfLinkTree(linkedLibSearchingFor):
+        exesLinkedTo.append(output)
+
+    for group in self.outputGroups:
+      for output in group.outputs:
+        if output.isExe and output.isPartOfLinkTree(linkedLibSearchingFor):
+          exesLinkedTo.append(output)
+    return exesLinkedTo
 
   # LOAD FUNCTIONS
 

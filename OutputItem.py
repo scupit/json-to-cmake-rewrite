@@ -95,8 +95,20 @@ class OutputItem:
   # groupToLink is OutputGroup type
   def linkGroup(self, groupToLink):
     self.linkedGroups.append(groupToLink)
-    # for libToLink in groupToLink.outputs:
-    #   self.linkLib(libToLink)
+
+  def isPartOfLinkTree(self, importedLib) -> bool:
+    for lib in self.linkedLibs:
+      if lib.name == importedLib.name:
+        return True
+
+    for group in self.linkedGroups:
+      if group.isPartOfLinkTree():
+        return True
+      
+      for output in group:
+        if output.isPartOfLinkTree():
+          return True
+    return self.isContainedInGroup() and self.groupContainedIn.isPartOfLinkTree(importedLib)
 
   # LOAD FUNCTIONS
 

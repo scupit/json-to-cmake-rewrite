@@ -88,8 +88,20 @@ class OutputGroup:
   # groupToLink is OutputGruop type
   def linkGroup(self, groupToLink):
     self.linkedGroups.append(groupToLink)
-    # for libToLink in groupToLink.outputs:
-    #   self.linkedLibs.append(groupToLink)
+
+  def isPartOfLinkTree(self, importedLib) -> bool:
+    for lib in self.linkedLibs:
+      if lib.name == importedLib.name:
+        return True
+    
+    for group in self.linkedGroups:
+      if group.isPartOfLinkTree(importedLib):
+        return True
+      
+      for output in group.outputs:
+        if output.isPartOfLinkTree(importedLib):
+          return True
+    return False
 
   # Call before other load functions in constructor
   def loadType(self, outputGroupItem):
