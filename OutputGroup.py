@@ -28,6 +28,16 @@ class OutputGroup:
   def getPrefixedName(self):
     return OUTPUT_GROUP_NAME_PREFIX + self.name
 
+  def getFlattenedGroupLinkedLibs(self) -> list:
+    groupOutputs = []
+    for group in self.linkedGroups:
+      if group.isLibraryType():
+        groupOutputs += group.outputs
+    return groupOutputs
+
+  def getAllLinkedLibs(self) -> set:
+    return set(self.linkedLibs + self.getFlattenedGroupLinkedLibs())
+
   def hasHeaders(self):
     for linkedLib in self.linkedLibs:
       if linkedLib.hasHeaders():

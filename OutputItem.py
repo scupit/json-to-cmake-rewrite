@@ -32,6 +32,16 @@ class OutputItem:
     self.includeDirs = FileRetriever.getIncludeDirs(outputData)
 
   # UTILS
+
+  def getFlattenedGroupLinkedLibs(self) -> list:
+    groupOutputs = []
+    for group in self.linkedGroups:
+      if group.isLibraryType():
+        groupOutputs += group.outputs
+    return groupOutputs
+
+  def getAllLinkedLibs(self) -> set:
+    return set(self.linkedLibs + self.getFlattenedGroupLinkedLibs())
   
   def hasHeaders(self):
     for linkedLib in self.linkedLibs:

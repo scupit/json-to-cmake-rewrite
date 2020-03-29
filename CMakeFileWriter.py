@@ -321,11 +321,13 @@ def writeLinks(allData: BuildData, cmakeLists):
   for group in allData.outputGroups:
     for output in group.outputs:
       if group.hasLinkedLibs() or output.hasLinkedLibs():
-        writeSingleLink(output.name, group.linkedLibs + output.linkedLibs, cmakeLists)
+        # TODO: When output libraries can link to each other, groups should also be given
+        # a "get flattened linked group libs" function to be used here.
+        writeSingleLink(output.name, list(group.getAllLinkedLibs() + output.getAllLinkedLibs()), cmakeLists)
     
   for outputItem in allData.outputs:
     if outputItem.hasLinkedLibs():
-      writeSingleLink(outputItem.name, outputItem.linkedLibs, cmakeLists)
+      writeSingleLink(outputItem.name, outputItem.getAllLinkedLibs(), cmakeLists)
 
 def writeStandards(allData: BuildData, cmakeLists):
   headerComment(cmakeLists, "LANGUAGE STANDARDS")
