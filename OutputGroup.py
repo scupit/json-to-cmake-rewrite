@@ -114,7 +114,7 @@ class OutputGroup:
       # NOTE: Also avoids OutputItem construction error
       if not Tags.TYPE in outputData:
         outputData[Tags.TYPE] = self.getTypeString()
-      self.outputs.append(OutputItem(name, outputData))
+      self.outputs.append(OutputItem(name, outputData, self))
 
     if len(self.outputs) == 0:
       Logger.logIssueThenQuit(f"No outputs are defined for Output Group {self.name}")

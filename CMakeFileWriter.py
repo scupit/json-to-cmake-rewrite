@@ -323,7 +323,7 @@ def writeLinks(allData: BuildData, cmakeLists):
       if group.hasLinkedLibs() or output.hasLinkedLibs():
         # TODO: When output libraries can link to each other, groups should also be given
         # a "get flattened linked group libs" function to be used here.
-        writeSingleLink(output.name, list(group.getAllLinkedLibs() + output.getAllLinkedLibs()), cmakeLists)
+        writeSingleLink(output.name, set(list(group.getAllLinkedLibs()) + list(output.getAllLinkedLibs())), cmakeLists)
     
   for outputItem in allData.outputs:
     if outputItem.hasLinkedLibs():

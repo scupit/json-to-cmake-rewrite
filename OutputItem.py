@@ -4,8 +4,9 @@ import Logger
 import Tags
 
 class OutputItem:
-  def __init__(self, name, outputData):
+  def __init__(self, name, outputData, groupContainedIn = None):
     self.name = name
+    self.groupContainedIn = groupContainedIn
 
     # List of references to ImportedLibs and OutputItems which are libraries
     # These are not loaded in initially. They are added at a later phase by the
@@ -42,7 +43,16 @@ class OutputItem:
 
   def getAllLinkedLibs(self) -> set:
     return set(self.linkedLibs + self.getFlattenedGroupLinkedLibs())
-  
+
+  def isContainedInGroup(self) -> bool:
+    return not self.groupContainedIn is None
+
+  def parentGroupHasHeaders(self) -> bool:
+    return self.isContainedInGroup() and self.groupContainedIn.hasHeaders()
+
+  def parentGroupHasIncludeDirs(self) -> bool:
+    return self.isContainedInGroup() and self.groupContainedIn.hasIncludeDirs()
+
   def hasHeaders(self):
     for linkedLib in self.linkedLibs:
       if linkedLib.hasHeaders():
@@ -54,7 +64,7 @@ class OutputItem:
           return True
       if linkedGroup.hasHeaders():
         return True
-    return len(self.headers) > 0
+    return len(self.headers) > 0 or self.parentGroupHasHeaders()
 
   def hasIncludeDirs(self):
     for linkedLib in self.linkedLibs:
@@ -67,7 +77,7 @@ class OutputItem:
           return True
       if linkedGroup.hasIncludeDirs():
         return True
-    return len(self.includeDirs) > 0
+    return len(self.includeDirs) > 0 or self.parentGroupHasIncludeDirs()
 
   def hasMainFile(self):
     return not self.mainFile is None
