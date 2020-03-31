@@ -1,31 +1,34 @@
 # Json to CMakeLists.txt converter
-This project aims to make creating CMake project much easier by generating the CMakeLists.txt file
-in your project directory. What is generated in the file depends on the contents of the *cmake_data.json*
-file you write.
+*json-to-cmake* is a CMakeLists.txt file generator which takes a handwritten json file as input. The json file
+(called **cmake_data.json**) 
 
-## Why this is useful
-* The json file is much more concise, so you write less
-* When files are specified by directory, running this script adds new files to the CMakeLists.txt automatically
-* Makes generating new projects much nicer and quicker
+## Goals of the project
+1. Providing a concise and easily readable way to detail build data
+2. Work over top of CMake, a popular buildsystem generator, so that devs can keep using the same tool
+3. Make creating new practice projects much easier, especially for beginners
+4. Make linking simpler to visualize
 
 # Usage
-* **NOTE:** Requires python 3
+As long as your C/C++ project contains a valid cmake_data.json file, this script can be used.
+See the [gcmake example project](https://github.com/scupit/gcmake-example-project) for a somewhat complete example
+of cmake_data.json in a complex project.
 
+## Prerequisites
+* Python 3
+
+## Running
 Run `python main.py <projectRoot>`, where projectRoot is the directory containing *cmake_data.json*.
 A CMakeLists.txt file will be generated in that same directory if your json file is valid.
 
 If you are currently in your project's root dir, you can also just run `python path/to/main.py`.
 No need to specify the root directory in this case since you are already in it.
-* It is recommended to wrap the python call in a batch or shell script for easy access. I call mine **gcmake** for "gen cmake"
 
 # cmake_data.json
-
-## What is it?
-*cmake_data.json* is the file in which you specify data for your project, including its outputs, build
-targets (such as *Debug* and *Release* builds), which files should be compiled into the outputs, etc.
+**cmake_data.json** is the data file where you will specify how your project should be built. More specifically it
+tells this script what should be written to CMakeLists.txt. It defines the project's outputs, compiler flags,
+imported libraries, links to outputs, language standards, and more.
 
 ## Options:
-**TODO**
 
 # TODO
 - [ ] Write a proper README
