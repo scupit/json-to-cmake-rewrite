@@ -40,6 +40,7 @@ This is **optional**. If project name is omitted, the name of the project root d
 
 ### C Language standard (optional)
 Only *std* standards are supported. No C extensions are allowed. This sets the standard for the entire project.
+The **C99** standard will be used if no standards are specified.
 
 `"defaultCStandard": "string"` sets the project's default C standard. If unchanged in CMake cache (easier to see in CMake
 gui), this is the standard which will be used to compile.  
@@ -53,6 +54,7 @@ are specified, the default standard must exist in the list of supported standard
 ### C++ Language standard (optional)
 Same as C, no language extensions are allowed. Only *std* standards are supported. This sets the standard for the
 entire project.
+The **C++11** standard will be used if no standards are specified.
 
 `"defaultCppStandard": "string"` sets the project's default C++ standard. Same rules as C apply.
 `"supportedCppStandards": [strings]` sets a list of standards allowed in the project. This will be selectable in
@@ -274,6 +276,53 @@ The download link attribute is not required and does nothing in the actual scrip
 if anyone reading cmake_data.json needs to build or download the library ahead of time. It's mainly just for saving time
 and a place to store a link to the library is applicable.
 
+## Build Targets
+**Tag:** `"buildTargets": {build target objects}`
+Build targets are your project configurations. Compiler flags are set here, and apply to the whole project
+depending on the selected configuration. Build targets will appear as as a dropdown in the CMake GUI.
+
+Here's an example of a project's build targets:
+
+``` json
+{
+  "buildTargets": {
+      "Debug": {
+          "compilerFlags": [
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Wconversion",
+              "-Wuninitialized",
+              "-pedantic",
+              "-pedantic-errors"
+          ]
+      },
+
+      "Release": {
+          "compilerFlags": [
+              "-O2",
+              "-DNDEBUG",
+              "-s"
+          ]
+      }
+  }
+}
+```
+
+### Name
+Build target name is the key of the object it's defined in. In the example above, there is one build target named
+*"Debug"* and another named *"Release"*.
+
+### Compiler Flags
+**Tag:** `"compilerFlags": [strings]`
+Specifies the compiler flags for the build target configuration. These flags must be prefixed with a `-` as usual.
+The flags apply to the entire project when the configuration is selected.
+
+### Default build target
+**Tag:** `"defaultBuildTarget": "string"`
+Specifying a default build target is optional. If no default standard is specified, the first target in `"buildTargets"`
+is used as the default.
+
 # TODO
 - [ ] Write a proper README
 - [X] Retrieve imported libraries from a specified git link
@@ -286,6 +335,7 @@ and a place to store a link to the library is applicable.
 - [ ] Add "canToggleType" boolean option for output libraries, which can switch whether the library is build as static or shared.
 - [ ] Add a checkbox at the bottom which allows you to turn library copy commands off.
 - [ ] Use a cmake custom function for copy commands
+- [ ] Allow compile **definitions** (add_compile_definitions(), target_compiler_definitions()) in build targets.
 - [X] Add "outputGroups", which is just output items grouped under a common name. This will make grouping optional outputs much easier, especially when creating several test execuatables. **Each output in the output group should be same type (either executable or library)**
 
 **Ex:**
