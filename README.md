@@ -15,6 +15,7 @@ of cmake_data.json in a complex project.
 
 ## Prerequisites
 * Python 3
+* Git (if imported libraries clone repos)
 
 ## Running
 Run `python main.py <projectRoot>`, where projectRoot is the directory containing *cmake_data.json*.
@@ -162,8 +163,12 @@ Outputs can also be defined in a group. Defining Here is what this might look li
 ```
 
 There are a few advantages to defining outputs in a group.
-1. All files and include dirs given to the group propogate to each of the group's outputs.
+1. All files and include dirs given to the group propagate to each of the group's outputs.
 2. Linking to/from groups will involve every file in the group. More on that later.
+
+#### Name
+As when defining an output, an output group's name is the key of the object it's defined in. In the example above,
+*"first-group"* is the name of the output group.
 
 ### Type
 **Tag:** `"type": "string"`
@@ -177,10 +182,10 @@ There are a few *type* relating things you should keep in mind when creating an 
 ### Files
 Header and source files are added to groups almost exactly the same way they are added to individual outputs (see
 *defining outputs* section for details). The only difference is that a `mainFile` cannot be given to a group. Also,
-every file added to the group will be propogated to each of the group's outputs
+every file added to the group will be propagated to each of the group's outputs
 
 ### Include Dirs
-Include dirs are added to the group exactly the same way they are added to outputs. These propogate to all the group's
+Include dirs are added to the group exactly the same way they are added to outputs. These propagate to all the group's
 outputs as well.
 
 ### Outputs
@@ -188,6 +193,86 @@ outputs as well.
 Outputs in a group are defined the same as individual outputs. However, `type` is no longer required. When no type is
 defined for the output, it inherits the same type as its containing group. Also, any files and include dirs given to
 the group will automatically be added to the output. *No need to define them for each output in that case*.
+
+## Imported Libraries
+**Tag:** `"importedLibs": {imported library objects}`
+Libraries can be imported into the project as well. Imported libraries are libraries which are already built. They should
+be linked to output libraries/executables. See how that is done in the **Linking** section.
+
+Imported libraries in this script should be thought of as "packages". Each one contains one or more library files to
+link, but when linking the name of the library "package" is used. More on that later.
+
+Here's an example of an imported library:
+
+``` json
+{
+  "importedLibs": {
+    "matrix-library": {
+        "gitRepo": "https://github.com/scupit/basic-matrices.git",
+        "cloneRepo": true,
+        "includeDirs": [ "dep/include" ],
+        "rHeaderDirs": [ "dep/include" ],
+        "rootDir": "dep/lib/matrices",
+        "libFiles": [ "matrices" ]
+    }
+  }
+}
+```
+
+### Name
+The name of an imported library, same as outputs, is the key of the object it's defined in. In the example above,
+the imported library "package" name is *"matrix-library"*.
+
+### Files and Include Dirs
+Header files and include directories are given to imported libraries exactly the same way they are given to outputs.
+See **Defining an Output** for details.
+**Note** that all the imported library's headers and include dirs will propagate to any output item/group it links to.
+
+### Set the import root directory
+**Tag:** `"rootDir": "string"`
+You must specify the directory which contains each of the library files. It is recommended for this to be
+*inside the project tree*, however it can also be outside the project tree.
+
+**Tag:** `"outsideProjectTree": boolean`
+In the case that the rootDir is
+outside the project tree, you must set `"outsideProjectTree"` to `true` in the importedLib. Otherwise it is
+assumed to be in the project tree.
+
+### Imported Library Files
+**Tag:** `"libFiles": [strings]`
+This is the list of library files to import. All you need to specify is the name of each library, no prefix or suffix.
+CMake will automatically resolve the library and whether it is static or shared. For example, if adding
+*libmatrices.a*, use **"matrices"** as the libFile.
+
+Each of these library files will be linked to every output and/or group this "imported library package" is linked to.
+
+### Git repos
+**Tag:** `"gitRepo": "string"`
+Imported libraries can also be cloned from git repos!
+To specify a git repo for the imported library, set its `"gitRepo"` to the remote repo URL. When running this script,
+the repo will be cloned into **dep/*libraryName*>** where *libraryName* is the name of the imported library "package".
+If the repo already exists in that location, no cloning occurs. 
+
+Repos are cloned into **external/*repoName***. The directory **external/_builds** will also be there to hold local
+builds.
+
+#### Optional Cloning
+**Tag:** `"cloneRepo": boolean`
+Repos are cloned by default, however you can turn off cloning completely per imported lib by setting its `"cloneRepo"`
+to `false`. Setting it to `true` will cause the repo to be cloned. That is the default behavior, but it also helps
+readability.
+
+### Generated "dep" directory
+**Tag:** `"generatedDepDir": "string"`
+When running this script, the directories **dep/include/*libGenName*** and **dep/lib/*libGenName*** 
+will be generated for each imported library. *libGenName* this case is the name of the library by default,
+however the `"generatedDepDir"` attribute can optionally be specified to overwrite this.
+
+### Download Link
+**Tag:** `"downloadLink": "string"`
+The download link attribute is not required and does nothing in the actual script. However, it is useful for reference
+if anyone reading cmake_data.json needs to build or download the library ahead of time. It's mainly just for saving time
+and a place to store a link to the library is applicable.
 
 # TODO
 - [ ] Write a proper README
