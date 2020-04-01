@@ -30,8 +30,39 @@ imported libraries, links to outputs, language standards, and more.
 
 All file names and directory paths will be relative to the cmake_data.json file.
 
+## Defining general project data
+This section is for optional project data, such as C/C++ language standards, and project name.
+
+### Project name (optional)
+**Tag:** `"projectName": "string"`
+This is **optional**. If project name is omitted, the name of the project root directory is used in the CMakeLists.
+
+### C Language standard (optional)
+Only *std* standards are supported. No C extensions are allowed. This sets the standard for the entire project.
+
+`"defaultCStandard": "string"` sets the project's default C standard. If unchanged in CMake cache (easier to see in CMake
+gui), this is the standard which will be used to compile.  
+`"supportedCStandards": [strings]` sets a list of standards allowed in the project. This will be selectable in a dropdown
+in the CMake GUI.
+
+**Both are optional**. If only a default standard is specified, that will be used as the project standard. If only an
+array of supported standards is supplied, then the first standard in the array will be used as the default. If both
+are specified, the default standard must exist in the list of supported standards.
+
+### C++ Language standard (optional)
+Same as C, no language extensions are allowed. Only *std* standards are supported. This sets the standard for the
+entire project.
+
+`"defaultCppStandard": "string"` sets the project's default C++ standard. Same rules as C apply.
+`"supportedCppStandards": [strings]` sets a list of standards allowed in the project. This will be selectable in
+a dropdown in the CMake GUI.
+
+**Both are optional**. If only a default standard is specified, that will be used as the project standard. If only an
+array of supported standards is supplied, then the first standard in the array will be used as the default. If both
+are specified, the default standard must exist in the list of supported standards.
+
 ## Defining an output
-**Tag:** `"output": {...}`.
+**Tag:** `"output": {objects}`.
 
 Outputs include executables, static libraries, and shared libraries.
 Each ouptut item is required to have a defined type and headers and/or sources. However, these can be
