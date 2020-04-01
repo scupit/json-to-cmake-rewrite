@@ -88,7 +88,7 @@ Output name is determined by the key of the object it's defined in. In the examp
 name of that executable. When compiled, the executable will be called *some-output*.
 
 ### Type
-**Tag:** `"type": "..."`
+**Tag:** `"type": "string"`
 
 Defines the type of output. Allowed values are:
   * `"executable"`for an executable
@@ -102,14 +102,14 @@ More on that later.
 There are several ways to add header and source files.
 
 #### Adding Headers
-* `"rHeaderDirs": [...]` recurses through the given directories and gets all header files in each.
-* `"headerDirs": [...]` gets all header files in the given directories, but does not recurse through them.
-* `"headers": [...]` gets all the given header files.
+* `"rHeaderDirs": [strings]` recurses through the given directories and gets all header files in each.
+* `"headerDirs": [strings]` gets all header files in the given directories, but does not recurse through them.
+* `"headers": [strings]` gets all the given header files.
 
 #### Adding Sources
-* `"rSourceDirs": [...]` recurses through the given directories and gets all source files in each.
-* `"sourceDirs": [...]` get all source files in the given directories, but does not recurse through them.
-* `"sources": [...]` gets all the given source files
+* `"rSourceDirs": [strings]` recurses through the given directories and gets all source files in each.
+* `"sourceDirs": [strings]` get all source files in the given directories, but does not recurse through them.
+* `"sources": [strings]` gets all the given source files
 
 #### Main File
 If the output is an `executable` type, it can also be given a main file. The main file is just added to sources in
@@ -131,8 +131,63 @@ main.cpp
 main.cpp would normally have to #include "include/HeaderFile.hpp". But by adding *include* as an "include directory",
 now the header can just be included as "HeaderFile.hpp".
 
-* `"rIncludeDirs": [...]` Recurses through the given directories and adds them all to the output's include dirs.
-* `"includeDirs": [...]` Adds all the given include directories as include dirs.
+* `"rIncludeDirs": [strings]` Recurses through the given directories and adds them all to the output's include dirs.
+* `"includeDirs": [strings]` Adds all the given include directories as include dirs.
+
+## Defining a group of outputs
+**Tag:** `"outputGroups": {ouptut objects}`
+Outputs can also be defined in a group. Defining Here is what this might look like:
+
+``` json
+{
+  "outputGroups": {
+    "first-group": {
+      "type": "executable",
+      "rHeaderDirs": [ "include" ],
+      "rSourceDirs": [ "src" ],
+      "includeDirs": [ "include" ],
+      "outputs": {
+        "an-output": {
+          "mainFile": "a-main.cpp"
+        },
+        "other-output": {
+          "mainFile": "other-files/other-main.cpp",
+          "headerDirs": [ "other-files/include" ],
+          "sourceDirs": [ "other-files/src" ]
+        }
+      }
+    }
+  }
+}
+```
+
+There are a few advantages to defining outputs in a group.
+1. All files and include dirs given to the group propogate to each of the group's outputs.
+2. Linking to/from groups will involve every file in the group. More on that later.
+
+### Type
+**Tag:** `"type": "string"`
+Each group must be given an output type. Available types are the same as individual outputs. See outputs section
+for more details and valid types.
+
+There are a few *type* relating things you should keep in mind when creating an output group.
+1. All outputs in the group must have the same "function" type as the group. This means that an *executable* group can only contain executables. But a group with type *staticLib* can only contain library outputs, whether static or shared.
+2. Each outputs will inherit the group's `type` if the output does not define a type. Therefore **the `type` attribute is not required for ouptuts defined in a group**
+
+### Files
+Header and source files are added to groups almost exactly the same way they are added to individual outputs (see
+*defining outputs* section for details). The only difference is that a `mainFile` cannot be given to a group. Also,
+every file added to the group will be propogated to each of the group's outputs
+
+### Include Dirs
+Include dirs are added to the group exactly the same way they are added to outputs. These propogate to all the group's
+outputs as well.
+
+### Outputs
+**Tag:** `"outputs": {output objects}`
+Outputs in a group are defined the same as individual outputs. However, `type` is no longer required. When no type is
+defined for the output, it inherits the same type as its containing group. Also, any files and include dirs given to
+the group will automatically be added to the output. *No need to define them for each output in that case*.
 
 # TODO
 - [ ] Write a proper README
