@@ -196,6 +196,15 @@ Outputs in a group are defined the same as individual outputs. However, `type` i
 defined for the output, it inherits the same type as its containing group. Also, any files and include dirs given to
 the group will automatically be added to the output. *No need to define them for each output in that case*.
 
+## Final notes about outputs and output groups
+At least one output must be defined for the project. It does not matter if the output is in a group or an individual.
+One just needs to be defined. If outputs are only defined in groups, then the `output` tag is not needed. If outputs
+are only defined individually, then the `outputGroups` tag is not needed.
+
+Output names, output group names, and output names inside of output groups must have unique names. This ensures that
+when linking, it is clear what exactly is being linked. It also ensures that output names do not collide after
+compilation. Imported library names will not be the same as any output or group names for the same reason.
+
 ## Imported Libraries
 **Tag:** `"importedLibs": {imported library objects}`
 Libraries can be imported into the project as well. Imported libraries are libraries which are already built. They should
@@ -275,6 +284,65 @@ however the `"generatedDepDir"` attribute can optionally be specified to overwri
 The download link attribute is not required and does nothing in the actual script. However, it is useful for reference
 if anyone reading cmake_data.json needs to build or download the library ahead of time. It's mainly just for saving time
 and a place to store a link to the library is applicable.
+
+## Linking
+**Tag:** `"links": {link objects}`
+Linking in cmake_data.json is very powerful and configurable due to the idea of "packages". If nothing needs to be
+linked, this `links` tag is optional. 
+
+Here is an example of several ways to link items:
+
+``` json
+{
+  "links": {
+    "toOutputName": [
+      "otherOutputName",
+      "outputGroupName"
+    ],
+    "toGroupName": [
+      "outputGroup.libraryOutputName",
+      "anotherGroupLinking"
+    ],
+    "groupName.toLibraryName": [
+      "importedLibraryName",
+      "theOtherGroupName",
+      "libraryName",
+      "aGroupName.otherLibraryName"
+    ]
+  }
+}
+```
+
+### Linking format
+Object key is the name of the item you are linking to. You can link to **individual outputs**, **output groups**, and
+**individual outputs in a group**.
+
+The array is a list of names you want linked to the item. **Imported libraries**, **outputs**, **output groups**, and
+**individual outputs in a group** can all be linked from.
+
+Formats are:
+* **Individual output**: *outputName*
+* **Output group**: *groupName*
+* **Individual output in a group**: *groupName.outputName*
+* **Imported library**: *importedLibName*
+
+### Restrictions
+1. Output libraries and library groups cannot be linked to other output libraries and library groups.
+
+This avoids several issues. Imported libraries can be linked to anything, however.
+
+### Propagation
+The item linked *to* will receive all headers, include dirs, and linked libraries of the item linked from. This means
+that the output or group linked to does not need to define these headers again, as they will be implicitly received.
+Any libraries linked to the "from" item will be linked to the "to" item as well.
+
+### Group linking
+Any item linked to a group will be linked to every output in the group. In that case, propagation rules apply to the
+group, and all items are then propagated down to each of its outputs.
+
+When a group is linked to an item, every output in the group is linked to that item. The item linked to will receive
+propagation from every output in the group, as well as implicitly through the group itself. Therefore all items from
+the group are received, and anything defined individually for the group's outputs is also received.
 
 ## Build Targets
 **Tag:** `"buildTargets": {build target objects}`
