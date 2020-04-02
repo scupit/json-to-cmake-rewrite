@@ -10,8 +10,9 @@
 
 # Usage
 As long as your C/C++ project contains a valid cmake_data.json file, this script can be used.
-See the [gcmake example project](https://github.com/scupit/gcmake-example-project) for a somewhat complete example
-of cmake_data.json in a complex project.
+
+* See [gcmake simple project](https://github.com/scupit/gcmake-simple-project) for a simple base project.
+* See the [gcmake example project](https://github.com/scupit/gcmake-example-project) for a complex project example.
 
 ## Prerequisites
 * Python 3
@@ -35,7 +36,8 @@ All file names and directory paths will be relative to the cmake_data.json file.
 This section is for optional project data, such as C/C++ language standards, and project name.
 
 ### Project name (optional)
-**Tag:** `"projectName": "string"`
+**Tag:** `"projectName": "string"`.
+
 This is **optional**. If project name is omitted, the name of the project root directory is used in the CMakeLists.
 
 ### C Language standard (optional)
@@ -44,7 +46,7 @@ The **C99** standard will be used if no standards are specified.
 
 `"defaultCStandard": "string"` sets the project's default C standard. If unchanged in CMake cache (easier to see in CMake
 gui), this is the standard which will be used to compile.  
-`"supportedCStandards": [strings]` sets a list of standards allowed in the project. This will be selectable in a dropdown
+`"supportedCStandards": ["strings"]` sets a list of standards allowed in the project. This will be selectable in a dropdown
 in the CMake GUI.
 
 **Both are optional**. If only a default standard is specified, that will be used as the project standard. If only an
@@ -57,7 +59,7 @@ entire project.
 The **C++11** standard will be used if no standards are specified.
 
 `"defaultCppStandard": "string"` sets the project's default C++ standard. Same rules as C apply.
-`"supportedCppStandards": [strings]` sets a list of standards allowed in the project. This will be selectable in
+`"supportedCppStandards": ["strings"]` sets a list of standards allowed in the project. This will be selectable in
 a dropdown in the CMake GUI.
 
 **Both are optional**. If only a default standard is specified, that will be used as the project standard. If only an
@@ -65,7 +67,7 @@ array of supported standards is supplied, then the first standard in the array w
 are specified, the default standard must exist in the list of supported standards.
 
 ## Defining an output
-**Tag:** `"output": {objects}`.
+**Tag:** `"output": {output objects}`.
 
 Outputs include executables, static libraries, and shared libraries.
 Each ouptut item is required to have a defined type and headers and/or sources. However, these can be
@@ -91,7 +93,7 @@ Output name is determined by the key of the object it's defined in. In the examp
 name of that executable. When compiled, the executable will be called *some-output*.
 
 ### Type
-**Tag:** `"type": "string"`
+**Tag:** `"type": "string"`.
 
 Defines the type of output. Allowed values are:
   * `"executable"`for an executable
@@ -105,14 +107,14 @@ More on that later.
 There are several ways to add header and source files.
 
 #### Adding Headers
-* `"rHeaderDirs": [strings]` recurses through the given directories and gets all header files in each.
-* `"headerDirs": [strings]` gets all header files in the given directories, but does not recurse through them.
-* `"headers": [strings]` gets all the given header files.
+* `"rHeaderDirs": ["directories"]` recurses through the given directories and gets all header files in each.
+* `"headerDirs": ["directories"]` gets all header files in the given directories, but does not recurse through them.
+* `"headers": ["fullFileNames"]` gets all the given header files.
 
 #### Adding Sources
-* `"rSourceDirs": [strings]` recurses through the given directories and gets all source files in each.
-* `"sourceDirs": [strings]` get all source files in the given directories, but does not recurse through them.
-* `"sources": [strings]` gets all the given source files
+* `"rSourceDirs": ["directories"]` recurses through the given directories and gets all source files in each.
+* `"sourceDirs": ["directories"]` get all source files in the given directories, but does not recurse through them.
+* `"sources": ["fullFileNames"]` gets all the given source files
 
 #### Main File
 If the output is an `executable` type, it can also be given a main file. The main file is just added to sources in
@@ -138,7 +140,8 @@ now the header can just be included as "HeaderFile.hpp".
 * `"includeDirs": [strings]` Adds all the given include directories as include dirs.
 
 ## Defining a group of outputs
-**Tag:** `"outputGroups": {ouptut objects}`
+**Tag:** `"outputGroups": {ouptut objects}`.
+
 Outputs can also be defined in a group. Defining Here is what this might look like:
 
 ``` json
@@ -168,12 +171,13 @@ There are a few advantages to defining outputs in a group.
 1. All files and include dirs given to the group propagate to each of the group's outputs.
 2. Linking to/from groups will involve every file in the group. More on that later.
 
-#### Name
+### Name
 As when defining an output, an output group's name is the key of the object it's defined in. In the example above,
 *"first-group"* is the name of the output group.
 
 ### Type
-**Tag:** `"type": "string"`
+**Tag:** `"type": "string"`.
+
 Each group must be given an output type. Available types are the same as individual outputs. See outputs section
 for more details and valid types.
 
@@ -191,7 +195,8 @@ Include dirs are added to the group exactly the same way they are added to outpu
 outputs as well.
 
 ### Outputs
-**Tag:** `"outputs": {output objects}`
+**Tag:** `"outputs": {output objects}`.
+
 Outputs in a group are defined the same as individual outputs. However, `type` is no longer required. When no type is
 defined for the output, it inherits the same type as its containing group. Also, any files and include dirs given to
 the group will automatically be added to the output. *No need to define them for each output in that case*.
@@ -206,7 +211,8 @@ when linking, it is clear what exactly is being linked. It also ensures that out
 compilation. Imported library names will not be the same as any output or group names for the same reason.
 
 ## Imported Libraries
-**Tag:** `"importedLibs": {imported library objects}`
+**Tag:** `"importedLibs": {imported library objects}`.
+
 Libraries can be imported into the project as well. Imported libraries are libraries which are already built. They should
 be linked to output libraries/executables. See how that is done in the **Linking** section.
 
@@ -240,25 +246,29 @@ See **Defining an Output** for details.
 **Note** that all the imported library's headers and include dirs will propagate to any output item/group it links to.
 
 ### Set the import root directory
-**Tag:** `"rootDir": "string"`
+**Tag:** `"rootDir": "directory"`.
+
 You must specify the directory which contains each of the library files. It is recommended for this to be
 *inside the project tree*, however it can also be outside the project tree.
 
-**Tag:** `"outsideProjectTree": boolean`
+**Tag:** `"outsideProjectTree": boolean`.
+
 In the case that the rootDir is
 outside the project tree, you must set `"outsideProjectTree"` to `true` in the importedLib. Otherwise it is
 assumed to be in the project tree.
 
 ### Imported Library Files
-**Tag:** `"libFiles": [strings]`
-This is the list of library files to import. All you need to specify is the name of each library, no prefix or suffix.
-CMake will automatically resolve the library and whether it is static or shared. For example, if adding
+**Tag:** `"libFiles": [strings]`.
+
+This is the list of library files to import. All you need to specify is the name of each library, no prefix, suffix,
+or extension. CMake will automatically resolve the library and whether it is static or shared. For example, if adding
 *libmatrices.a*, use **"matrices"** as the libFile.
 
 Each of these library files will be linked to every output and/or group this "imported library package" is linked to.
 
 ### Git repos
-**Tag:** `"gitRepo": "string"`
+**Tag:** `"gitRepo": "string"`.
+
 Imported libraries can also be cloned from git repos!
 To specify a git repo for the imported library, set its `"gitRepo"` to the remote repo URL. When running this script,
 the repo will be cloned into **dep/*libraryName*>** where *libraryName* is the name of the imported library "package".
@@ -268,25 +278,29 @@ Repos are cloned into **external/*repoName***. The directory **external/_builds*
 builds.
 
 #### Optional Cloning
-**Tag:** `"cloneRepo": boolean`
+**Tag:** `"cloneRepo": boolean`.
+
 Repos are cloned by default, however you can turn off cloning completely per imported lib by setting its `"cloneRepo"`
 to `false`. Setting it to `true` will cause the repo to be cloned. That is the default behavior, but it also helps
 readability.
 
 ### Generated "dep" directory
-**Tag:** `"generatedDepDir": "string"`
+**Tag:** `"generatedDepDir": "directory"`.
+
 When running this script, the directories **dep/include/*libGenName*** and **dep/lib/*libGenName*** 
 will be generated for each imported library. *libGenName* this case is the name of the library by default,
 however the `"generatedDepDir"` attribute can optionally be specified to overwrite this.
 
 ### Download Link
-**Tag:** `"downloadLink": "string"`
+**Tag:** `"downloadLink": "string"`.
+
 The download link attribute is not required and does nothing in the actual script. However, it is useful for reference
 if anyone reading cmake_data.json needs to build or download the library ahead of time. It's mainly just for saving time
 and a place to store a link to the library is applicable.
 
 ## Linking
-**Tag:** `"links": {link objects}`
+**Tag:** `"links": {link objects}`.
+
 Linking in cmake_data.json is very powerful and configurable due to the idea of "packages". If nothing needs to be
 linked, this `links` tag is optional. 
 
@@ -327,17 +341,20 @@ Formats are:
 * **Imported library**: *importedLibName*
 
 ### Restrictions
-1. Output libraries and library groups cannot be linked to other output libraries and library groups.
-
-This avoids several issues. Imported libraries can be linked to anything, however.
+1. Output libraries and library groups cannot be linked to other output libraries and library groups. This avoids several issues. However, imported libraries can be linked to anything.
 
 ### Propagation
-The item linked *to* will receive all headers, include dirs, and linked libraries of the item linked from. This means
-that the output or group linked to does not need to define these headers again, as they will be implicitly received.
-Any libraries linked to the "from" item will be linked to the "to" item as well.
+> The item linked *to* will receive all headers, include dirs, and linked libraries of the item linked from.
+
+This means
+that the output or group linked to does not need to define the same headers or include dirs as any of their linked
+libraries, as these will be implicitly received. Any libraries linked to the "from" item will be linked to the "to"
+item implicitly as well. 
 
 ### Group linking
-Any item linked to a group will be linked to every output in the group. In that case, propagation rules apply to the
+> Any item linked to a group will be linked to every output in the group.
+
+In that case, propagation rules apply to the
 group, and all items are then propagated down to each of its outputs.
 
 When a group is linked to an item, every output in the group is linked to that item. The item linked to will receive
@@ -345,7 +362,8 @@ propagation from every output in the group, as well as implicitly through the gr
 the group are received, and anything defined individually for the group's outputs is also received.
 
 ## Build Targets
-**Tag:** `"buildTargets": {build target objects}`
+**Tag:** `"buildTargets": {build target objects}`.
+
 Build targets are your project configurations. Compiler flags are set here, and apply to the whole project
 depending on the selected configuration. Build targets will appear as as a dropdown in the CMake GUI.
 
@@ -382,17 +400,19 @@ Build target name is the key of the object it's defined in. In the example above
 *"Debug"* and another named *"Release"*.
 
 ### Compiler Flags
-**Tag:** `"compilerFlags": [strings]`
+**Tag:** `"compilerFlags": ["strings"]`.
+
 Specifies the compiler flags for the build target configuration. These flags must be prefixed with a `-` as usual.
 The flags apply to the entire project when the configuration is selected.
 
 ### Default build target
-**Tag:** `"defaultBuildTarget": "string"`
+**Tag:** `"defaultBuildTarget": "string"`.
+
 Specifying a default build target is optional. If no default standard is specified, the first target in `"buildTargets"`
 is used as the default.
 
-# TODO
-- [ ] Write a proper README
+# TODO/Planned features
+- [X] Write a proper README
 - [X] Retrieve imported libraries from a specified git link
 - [X] Change default C standard to C99
 - [X] If a default language standard is specified and no supported language standards were specified, use that as the single supported language standard
@@ -403,7 +423,8 @@ is used as the default.
 - [ ] Add "canToggleType" boolean option for output libraries, which can switch whether the library is build as static or shared.
 - [ ] Add a checkbox at the bottom which allows you to turn library copy commands off.
 - [ ] Use a cmake custom function for copy commands
-- [ ] Allow compile **definitions** (add_compile_definitions(), target_compiler_definitions()) in build targets.
+- [ ] Allow compile **definitions** (add_compile_definitions(), target_compile_definitions()) in build targets.
+- [ ] When generating external/_build for imported libraries, also generate external/build/*libraryName*
 - [X] Add "outputGroups", which is just output items grouped under a common name. This will make grouping optional outputs much easier, especially when creating several test execuatables. **Each output in the output group should be same type (either executable or library)**
 
 **Ex:**
