@@ -59,8 +59,7 @@ class ImportedLibrary:
         self.dirContainingLibraryFiles = FileHelper.getAbsoluteExternalPath(importedLibData[Tags.IMPORT_ROOT_DIR])
       else:
         self.dirContainingLibraryFiles = FileHelper.normalizePath(importedLibData[Tags.IMPORT_ROOT_DIR])
-    # Root dir is optional when the imported library is outside the project tree
-    elif not self.isOutsideProjectTree:
+    else:
       Logger.logIssueThenQuit(f"Must specify {Tags.IMPORT_ROOT_DIR} in imported lib: {self.name}")
 
   def loadLibraryFiles(self, importedLibData):
