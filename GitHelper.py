@@ -12,10 +12,10 @@ def getRepoName(gitRepo: str) -> str:
   lastDirSeparator = gitRepo.rfind('/')
   return removeGitExtension(gitRepo if lastDirSeparator == -1 else gitRepo[lastDirSeparator + 1:])
 
-def cloneRepoIfNonexistent(gitRepo: str):
+def cloneRepoIfNonexistent(gitRepo: str, importedLibName: str = ""):
   # Create the imported repo git directory
   # Create the imported repo builds directory
-  createDirPath(f"{Globals.EXTERNAL_GIT_REPO_DIR}/{Globals.EXTERNAL_BUILD_REPO_DIR}")
+  createDirPath(f"{Globals.EXTERNAL_GIT_REPO_DIR}/{Globals.EXTERNAL_BUILD_REPO_DIR}/{importedLibName}")
 
   # Normally this isn't necessary because the repo knows its own name, and when cloning into the
   # current directory the name is set for you. However we are cloning from an external directory
