@@ -459,7 +459,7 @@ is used as the default.
 - [ ] Add a checkbox at the bottom which allows you to turn library copy commands off.
 - [ ] Use a cmake custom function for copy commands
 - [X] Allow preprocessor **defines** (add_compile_definitions()) in build targets.
-- [ ] When generating external/_build for imported libraries, also generate external/build/*libraryName*
+- [X] When generating external/_build for imported libraries, also generate external/build/*libraryName*
 - [X] Add "outputGroups", which is just output items grouped under a common name. This will make grouping optional outputs much easier, especially when creating several test execuatables. **Each output in the output group should be same type (either executable or library)**
 
 **Ex:**
