@@ -278,39 +278,47 @@ def writeExeGroup(group: OutputGroup, allData: BuildData, cmakeLists):
     newlines(cmakeLists, 2)
 
 def writeOutputGroups(data: BuildData, cmakeLists):
-  headerComment(cmakeLists, f"LIBRARY OUTPUT GROUPS {conditionalNoneText(data.hasLibOutputGroups())}")
-  for libGroup in data.outputGroups:
-    if libGroup.isLibraryType():
-      writeLibraryGroup(libGroup, data, cmakeLists)
+  if data.hasLibOutputGroups():
+    headerComment(cmakeLists, f"LIBRARY OUTPUT GROUPS {conditionalNoneText(data.hasLibOutputGroups())}")
+    for libGroup in data.outputGroups:
+      if libGroup.isLibraryType():
+        writeLibraryGroup(libGroup, data, cmakeLists)
 
-  headerComment(cmakeLists, f"EXECUTABLE OUTPUT GROUPS {conditionalNoneText(data.hasExeOutputGroups())}")
-  for exeGroup in data.outputGroups:
-    if exeGroup.isExeType:
-      writeExeGroup(exeGroup, data, cmakeLists)
+  if data.hasExeOutputGroups():
+    headerComment(cmakeLists, f"EXECUTABLE OUTPUT GROUPS {conditionalNoneText(data.hasExeOutputGroups())}")
+    for exeGroup in data.outputGroups:
+      if exeGroup.isExeType:
+        writeExeGroup(exeGroup, data, cmakeLists)
 
 def writeOutputs(data: BuildData, cmakeLists):
-  headerComment(cmakeLists, f"OUTPUT SHARED LIBRARIES {conditionalNoneText(data.hasSharedLibOutputs())}")
-  # Print shared libs
-  for sharedLibOutput in data.outputs:
-    if sharedLibOutput.isSharedLib:
-      writeSharedLib(sharedLibOutput, data, cmakeLists)
-      newlines(cmakeLists, 2)
+  if data.hasSharedLibOutputs():
+    headerComment(cmakeLists, f"INDIVIDUAL OUTPUT SHARED LIBRARIES {conditionalNoneText(data.hasSharedLibOutputs())}")
+    # Print shared libs
+    for sharedLibOutput in data.outputs:
+      if sharedLibOutput.isSharedLib:
+        writeSharedLib(sharedLibOutput, data, cmakeLists)
+        newlines(cmakeLists, 2)
 
-  headerComment(cmakeLists, f"OUTPUT STATIC LIBRARIES {conditionalNoneText(data.hasStaticLibOutputs())}")
-  # Print static libs
-  for staticLibOutput in data.outputs:
-    if staticLibOutput.isStaticLib:
-      writeStaticLib(staticLibOutput, data, cmakeLists)
-      newlines(cmakeLists, 2)
+  if data.hasStaticLibOutputs():
+    headerComment(cmakeLists, f"INDIVIDUAL OUTPUT STATIC LIBRARIES {conditionalNoneText(data.hasStaticLibOutputs())}")
+    # Print static libs
+    for staticLibOutput in data.outputs:
+      if staticLibOutput.isStaticLib:
+        writeStaticLib(staticLibOutput, data, cmakeLists)
+        newlines(cmakeLists, 2)
 
+  # This function must be called here (below individual library writes and individual exe writes).
+  # Output groups are written library-first, so this ensures that output libraries are always
+  # present before executables
   writeOutputGroups(data, cmakeLists)
 
-  headerComment(cmakeLists, f"OUTPUT EXECUTABLES {conditionalNoneText(data.hasExecutableOutputs())}")
-  # Print executables
-  for exeOutput in data.outputs:
-    if exeOutput.isExe:
-      writeExe(exeOutput, data, cmakeLists)
-      newlines(cmakeLists, 2)
+  if data.hasExecutableOutputs():
+    headerComment(cmakeLists, f"OUTPUT EXECUTABLES {conditionalNoneText(data.hasExecutableOutputs())}")
+    # Print executables
+    for exeOutput in data.outputs:
+      if exeOutput.isExe:
+        writeExe(exeOutput, data, cmakeLists)
+        newlines(cmakeLists, 2)
 
 def writeSingleLink(targetItemName: str, linkedLibs: list, cmakeLists):
   cmakeLists.write(f"target_link_libraries( {targetItemName}")
@@ -478,7 +486,8 @@ def writeFile(cmakeLists):
   writeBuildTargets(data, cmakeLists)
   newlines(cmakeLists, 2)
 
-  writeImportedLibs(data, cmakeLists)
+  if data.hasImportedLibraries():
+    writeImportedLibs(data, cmakeLists)
 
   # Already ends in two newlines due to how outputs are written from 'for' loops
   writeOutputs(data, cmakeLists)
