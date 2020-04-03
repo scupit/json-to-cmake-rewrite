@@ -163,8 +163,15 @@ now the header can just be included as "HeaderFile.hpp".
 * `"rIncludeDirs": [strings]` Recurses through the given directories and adds them all to the output's include dirs.
 * `"includeDirs": [strings]` Adds all the given include directories as include dirs.
 
+### Library type toggling (optional)
+**Tag:** `"canToggleType": boolean`.
+
+This attribute only applies to library outputs. If this attribute is set to `true` for an output library, then the
+library type will be toggleable using the CMake GUI using a dropdown. The library's default type is determined by
+its `type` attribute.
+
 ## Defining a group of outputs
-**Tag:** `"outputGroups": {ouptut objects}`.
+**Tag:** `"outputGroups": {output objects}`.
 
 Outputs can also be defined in a group. Defining Here is what this might look like:
 
@@ -224,6 +231,12 @@ outputs as well.
 Outputs in a group are defined the same as individual outputs. However, `type` is no longer required. When no type is
 defined for the output, it inherits the same type as its containing group. Also, any files and include dirs given to
 the group will automatically be added to the output. *No need to define them for each output in that case*.
+
+### Library group type toggling
+**Tag:** `"canToggleType": boolean`.
+
+As with individual outputs, this attribute is optional. This defaults to `false` if not set, and will be used as the
+default value for *each output in the group which does not individually define this attribute for itself*.
 
 ## Final notes about outputs and output groups
 At least one output must be defined for the project. It does not matter if the output is in a group or an individual.
@@ -455,7 +468,7 @@ is used as the default.
 - [X] Create an example project in github and link it in this README
 - [ ] Add "debuggable" flag for executables to flag whether or not a debugger configuration should be build for them. This config does nothing for CMake, but could be helpful if you create a tool to generate debug configurations for your IDE (or vscode, for example)
 - [ ] Add "optional" boolean option for outputs, which determines whether or not the output should be built. Note that this option should be ignore if it is set to 'true' on a library which is a dependency of an execuatable being built.
-- [ ] Add "canToggleType" boolean option for output libraries, which can switch whether the library is build as static or shared.
+- [X] Add "canToggleType" boolean option for output libraries, which can switch whether the library is build as static or shared.
 - [ ] Add a checkbox at the bottom which allows you to turn library copy commands off.
 - [ ] Use a cmake custom function for copy commands
 - [X] Allow preprocessor **defines** (add_compile_definitions()) in build targets.
