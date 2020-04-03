@@ -196,7 +196,7 @@ class BuildData:
         self.importedLibs.append(importedLib)
 
         if importedLib.shouldCloneRepo and not importedLib.gitRepoToClone is None:
-          GitHelper.cloneRepoIfNonexistent(importedLib.gitRepoToClone, importedLib.name)
+          GitHelper.cloneRepoIfNonexistent(importedLib.gitRepoToClone, importedLib.generatedDepDirname)
     
     self.createImportedLibraryDirs()
 
