@@ -464,7 +464,7 @@ is used as the default.
 - [ ] Add a checkbox at the bottom which allows you to turn library copy commands off.
 - [ ] Use a cmake custom function for copy commands
 - [ ] Do not create header/source/includeDir variable in CMakeLists when the target item does not have them
-- [ ] General refactoring, especially output items and linker
+- [X] General refactoring, especially output items and linker
 - [ ] Print warnings for attributes set to a value under contitions where the attribute has no effect
 - [ ] Add "optional" boolean option for outputs, which determines whether or not the output should be built. Note that this option should be ignore if it is set to 'true' on a library which is a dependency of an execuatable being built.
 - [ ] Allow file names to be specified using a json object.
