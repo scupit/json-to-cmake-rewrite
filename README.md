@@ -405,14 +405,19 @@ Here's an example of a project's build targets:
               "-Wuninitialized",
               "-pedantic",
               "-pedantic-errors"
+          ],
+          "defines": [
+            "SOME_DEBUG_CONSTANT=123"
           ]
       },
 
       "Release": {
           "compilerFlags": [
               "-O2",
-              "-DNDEBUG",
               "-s"
+          ],
+          "defines": [
+            "NDEBUG",
           ]
       }
   }
@@ -427,7 +432,13 @@ Build target name is the key of the object it's defined in. In the example above
 **Tag:** `"compilerFlags": ["strings"]`.
 
 Specifies the compiler flags for the build target configuration. These flags must be prefixed with a `-` as usual.
-The flags apply to the entire project when the configuration is selected.
+The flags apply to the entire project when the configuration is selected. See above for example.
+
+### Preprocessor definitions
+**Tag:** `"defines": ["strings"]`.
+
+Gives preprocessor definitions to the compiler. These definitions also apply to the entire project when their containing
+configuration is selected. See above for example.
 
 ### Default build target
 **Tag:** `"defaultBuildTarget": "string"`.
@@ -447,7 +458,7 @@ is used as the default.
 - [ ] Add "canToggleType" boolean option for output libraries, which can switch whether the library is build as static or shared.
 - [ ] Add a checkbox at the bottom which allows you to turn library copy commands off.
 - [ ] Use a cmake custom function for copy commands
-- [ ] Allow compile **definitions** (add_compile_definitions(), target_compile_definitions()) in build targets.
+- [X] Allow preprocessor **defines** (add_compile_definitions()) in build targets.
 - [ ] When generating external/_build for imported libraries, also generate external/build/*libraryName*
 - [X] Add "outputGroups", which is just output items grouped under a common name. This will make grouping optional outputs much easier, especially when creating several test execuatables. **Each output in the output group should be same type (either executable or library)**
 
