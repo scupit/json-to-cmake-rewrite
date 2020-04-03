@@ -36,9 +36,7 @@ def getImportedLibByName(importedLibs, importedLibName: str) -> ImportedLibrary:
       return importedLib
   return None
 
-# TODO: Clean up these two link functions. The can probably be combined of outputs and output groups inherit linking and type checking functions
-# toLinkName may be different from output item name if the output item is in a group. Ex: "groupName.outputName" vs "outputName"
-def linkToIndividualOutput(linkedLibNames, outputGroups, outputItems, importedLibraries, outputItemLinkingTo: OutputItem, toLinkName: str):
+def linkToOutput(linkedLibNames, outputGroups, outputItems, importedLibraries, outputItemLinkingTo: OutputItem, toLinkName: str, itemTypeString: str):
   for linkedLibName in linkedLibNames:
     libLinking = getOutputByName(outputGroups, outputItems, linkedLibName)
     groupLinking = getOutputGroupByName(outputGroups, linkedLibName)
@@ -48,43 +46,18 @@ def linkToIndividualOutput(linkedLibNames, outputGroups, outputItems, importedLi
       if libLinking.isExeType:
         Logger.logIssueThenQuit(f"Cannot link executable type {linkedLibName} to {toLinkName}")
       elif outputItemLinkingTo.isLibraryType():
-        Logger.logIssueThenQuit(f"Please don't link output library \"{linkedLibName}\" to another output library ({toLinkName})")
+        Logger.logIssueThenQuit(f"Please don't link output library \"{linkedLibName}\" to another {itemTypeString} ({toLinkName})")
       else:
         outputItemLinkingTo.linkLib(libLinking)
     elif not groupLinking is None:
       if groupLinking.isExeType:
         Logger.logIssueThenQuit(f"Cannot link exe type group {linkedLibName} to {toLinkName}")
       elif outputItemLinkingTo.isLibraryType():
-        Logger.logIssueThenQuit(f"Please don't link output library group \"{linkedLibName}\" to another output library ({toLinkName})")
+        Logger.logIssueThenQuit(f"Please don't link output library group \"{linkedLibName}\" to another {itemTypeString} ({toLinkName})")
       else:
         outputItemLinkingTo.linkGroup(groupLinking)
     elif not importedLibLinking is None:
       outputItemLinkingTo.linkLib(importedLibLinking)
-    else:
-      Logger.logIssueThenQuit(f"Cannot link nonexistent library or group {linkedLibName} to {toLinkName}")
-
-def linkToOutputGroup(linkedLibNames, outputGroups, outputItems, importedLibraries, outputGroupLinkingTo: OutputGroup, toLinkName: str):
-  for linkedLibName in linkedLibNames:
-    libLinking = getOutputByName(outputGroups, outputItems, linkedLibName)
-    groupLinking = getOutputGroupByName(outputGroups, linkedLibName)
-    importedLibLinking = getImportedLibByName(importedLibraries, linkedLibName)
-
-    if not libLinking is None:
-      if libLinking.isExeType:
-        Logger.logIssueThenQuit(f"Cannot link executable type {linkedLibName} to {toLinkName}")
-      elif outputGroupLinkingTo.isLibraryType():
-        Logger.logIssueThenQuit(f"Please don't link output library \"{linkedLibName}\" to an output library group ({toLinkName})")
-      else:
-        outputGroupLinkingTo.linkLib(libLinking)
-    elif not groupLinking is None:
-      if groupLinking.isExeType:
-        Logger.logIssueThenQuit(f"Cannot link exe type group {linkedLibName} to {toLinkName}")
-      elif outputGroupLinkingTo.isLibraryType():
-        Logger.logIssueThenQuit(f"Please don't link output library group \"{linkedLibName}\" to another output library group ({toLinkName})")
-      else:
-        outputGroupLinkingTo.linkGroup(groupLinking)
-    elif not importedLibLinking is None:
-      outputGroupLinkingTo.linkLib(importedLibLinking)
     else:
       Logger.logIssueThenQuit(f"Cannot link nonexistent library or group {linkedLibName} to {toLinkName}")
 
@@ -95,8 +68,8 @@ def linkLibrariesToOutputs(linkData, outputGroups, outputItems, importedLibrarie
     groupLinkingTo = getOutputGroupByName(outputGroups, nameLinkingTo)
 
     if not outputLinkingTo is None:
-      linkToIndividualOutput(linkedLibNames, outputGroups, outputItems, importedLibraries, outputLinkingTo, nameLinkingTo)
+      linkToOutput(linkedLibNames, outputGroups, outputItems, importedLibraries, outputLinkingTo, nameLinkingTo, "output library")
     elif not groupLinkingTo is None:
-      linkToOutputGroup(linkedLibNames, outputGroups, outputItems, importedLibraries, groupLinkingTo, nameLinkingTo)
+      linkToOutput(linkedLibNames, outputGroups, outputItems, importedLibraries, groupLinkingTo, nameLinkingTo, "output library group")
     else:
       Logger.logIssueThenQuit(f"Tried linking to output or group \"{nameLinkingTo}\", which does not exist")
