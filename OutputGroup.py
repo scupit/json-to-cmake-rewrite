@@ -130,7 +130,7 @@ class OutputGroup:
       Logger.logIssueThenQuit(f"Invalid {Tags.TYPE} given to Output Group {self.name}")
 
   def loadCanToggleType(self, outputGroupItem):
-    if self.isExeType and Tags.LIB_TYPE_TOGGLE_POSSIBLE in outputGroupItem:
+    if self.isLibraryType() and Tags.LIB_TYPE_TOGGLE_POSSIBLE in outputGroupItem:
       self.canToggleLibraryType = outputGroupItem[Tags.LIB_TYPE_TOGGLE_POSSIBLE]
 
   def loadOutputs(self, outputGroupItem):

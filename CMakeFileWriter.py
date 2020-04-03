@@ -68,7 +68,7 @@ def writeCMakeFunctions(data: BuildData, cmakeLists):
     headerComment(cmakeLists, "Custom Functions")
 
     cmakeLists.write(CMakeFunctions.TOGGLING_LIBRARY_CREATOR)
-    newlines(cmakeLists, 2)
+    newlines(cmakeLists, 1)
 
 def writeImportedLibs(data: BuildData, cmakeLists):
   headerComment(cmakeLists, f"IMPORTED LIBRARIES {conditionalNoneText(data.hasImportedLibraries())}")
