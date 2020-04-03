@@ -41,6 +41,9 @@ class OutputGroup:
   def getAllLinkedLibs(self) -> set:
     return set(self.linkedLibs + self.getFlattenedGroupLinkedLibs())
 
+  def hasLinks(self) -> bool:
+    return len(self.linkedGroups) > 0 or len(self.linkedLibs) > 0
+
   def hasHeaders(self):
     for linkedLib in self.linkedLibs:
       if linkedLib.hasHeaders():

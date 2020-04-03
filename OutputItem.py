@@ -56,6 +56,9 @@ class OutputItem:
   def parentGroupHasIncludeDirs(self) -> bool:
     return self.isContainedInGroup() and self.groupContainedIn.hasIncludeDirs()
 
+  def hasLinks(self) -> bool:
+    return len(self.linkedLibs) > 0 or len(self.linkedGroups) > 0
+
   def hasHeaders(self):
     for linkedLib in self.linkedLibs:
       if linkedLib.hasHeaders():

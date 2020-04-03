@@ -483,8 +483,9 @@ def writeFile(cmakeLists):
   # Already ends in two newlines due to how outputs are written from 'for' loops
   writeOutputs(data, cmakeLists)
 
-  # Already ends in two newlines
-  writeLinks(data, cmakeLists)
+  if data.hasLinks():
+    # Already ends in two newlines
+    writeLinks(data, cmakeLists)
 
   if data.hasImportedLibraries() and data.hasCopiableImportedLibs():
     writeImportedLibCopyCommands(data, cmakeLists)

@@ -93,6 +93,20 @@ class BuildData:
   def hasImportedLibraries(self) -> bool:
     return len(self.importedLibs) > 0
 
+  def hasLinks(self) -> bool:
+    for output in self.outputs:
+      if output.hasLinks():
+        return True
+    
+    for group in self.outputGroups:
+      if group.hasLinkes():
+        return True
+      
+      for ouptut in group.outputs:
+        if output.hasLinks():
+          return True
+    return False
+
   def hasCopiableImportedLibs(self) -> bool:
     for importedLib in self.importedLibs:
       if importedLib.isExternalWithRoot() or not importedLib.isOutsideProjectTree:
