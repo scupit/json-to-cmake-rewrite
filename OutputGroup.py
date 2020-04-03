@@ -2,80 +2,20 @@ import FileRetriever
 import Logger
 import Tags
 from OutputItem import OutputItem
+from OutputBase import OutputBase
 from Globals import OUTPUT_GROUP_NAME_PREFIX
 
-class OutputGroup:
+class OutputGroup(OutputBase):
   def __init__(self, name, outputGroupItem):
-    self.name = name
-
-    self.areLinkedLibsMerged = False
-
-    self.linkedLibs = [ ]
-    self.linkedGroups = [ ]
+    super().__init__(name, outputGroupItem)
     self.outputs = [ ]
-
-    self.canToggleLibraryType = False
-
-    self.isExeType = False
-    self.isSharedLibType = False
-    self.isStaticLibType = False
-
-    self.headers = FileRetriever.getHeaderFiles(outputGroupItem)
-    self.sources = FileRetriever.getSourceFiles(outputGroupItem)
-    self.includeDirs = FileRetriever.getIncludeDirs(outputGroupItem)
-
-    self.loadType(outputGroupItem)
-    self.loadCanToggleType(outputGroupItem)
     self.loadOutputs(outputGroupItem)
   
   def getPrefixedName(self):
     return OUTPUT_GROUP_NAME_PREFIX + self.name
 
-  def getFlattenedGroupLinkedLibs(self) -> list:
-    groupOutputs = []
-    for group in self.linkedGroups:
-      if group.isLibraryType():
-        groupOutputs += group.outputs
-    return groupOutputs
-
   def getAllLinkedLibs(self) -> set:
     return set(self.linkedLibs + self.getFlattenedGroupLinkedLibs())
-
-  def hasLinks(self) -> bool:
-    return len(self.linkedGroups) > 0 or len(self.linkedLibs) > 0
-
-  def hasHeaders(self):
-    for linkedLib in self.linkedLibs:
-      if linkedLib.hasHeaders():
-        return True
-
-    for group in self.linkedGroups:
-      for output in group.outputs:
-        if output.hasHeaders():
-          return True
-      if group.hasHeaders():
-        return True
-    return len(self.headers) > 0
-  
-  def hasIncludeDirs(self):
-    for linkedLib in self.linkedLibs:
-      if linkedLib.hasIncludeDirs():
-        return True
-
-    for linkedGroup in self.linkedGroups:
-      for output in linkedGroup.outputs:
-        if output.hasIncludeDirs():
-          return True
-
-      if linkedGroup.hasIncludeDirs():
-        return True
-    return len(self.includeDirs) > 0
-
-  def isLibraryType(self):
-    return self.isStaticLibType or self.isSharedLibType
-
-  def hasLinkedLibs(self):
-    return len(self.linkedGroups) > 0 or len(self.linkedLibs) > 0
 
   def hasLibraryThatCanBeToggled(self):
     if not self.isLibraryType():
@@ -87,7 +27,7 @@ class OutputGroup:
     return False
 
   def isOutputTypeCompatible(self, outputItem: OutputItem) -> bool:
-    return self.isExeType and outputItem.isExe or self.isLibraryType() and outputItem.isOfLibraryType()
+    return self.isExeType and outputItem.isExeType or self.isLibraryType() and outputItem.isLibraryType()
 
   def getTypeString(self) -> str:
     if self.isExeType:
@@ -104,37 +44,8 @@ class OutputGroup:
   def linkGroup(self, groupToLink):
     self.linkedGroups.append(groupToLink)
 
-  def isPartOfLinkTree(self, importedLib) -> bool:
-    for lib in self.linkedLibs:
-      if lib.name == importedLib.name:
-        return True
-    
-    for group in self.linkedGroups:
-      if group.isPartOfLinkTree(importedLib):
-        return True
-      
-      for output in group.outputs:
-        if output.isPartOfLinkTree(importedLib):
-          return True
-    return False
-
-  # Call before other load functions in constructor
-  def loadType(self, outputGroupItem):
-    if not Tags.TYPE in outputGroupItem:
-      Logger.logIssueThenQuit(f"{Tags.TYPE} missing from Output Group {self.name}")
-
-    if outputGroupItem[Tags.TYPE] == Tags.EXE:
-      self.isExeType = True
-    elif outputGroupItem[Tags.TYPE] == Tags.SHARED_LIB:
-      self.isSharedLibType = True
-    elif outputGroupItem[Tags.TYPE] == Tags.STATIC_LIB:
-      self.isStaticLibType = True
-    else:
-      Logger.logIssueThenQuit(f"Invalid {Tags.TYPE} given to Output Group {self.name}")
-
-  def loadCanToggleType(self, outputGroupItem):
-    if self.isLibraryType() and Tags.LIB_TYPE_TOGGLE_POSSIBLE in outputGroupItem:
-      self.canToggleLibraryType = outputGroupItem[Tags.LIB_TYPE_TOGGLE_POSSIBLE]
+  def loadType(self, outputItemData):
+    super().loadType(outputItemData, "Output Group")
 
   def loadOutputs(self, outputGroupItem):
     if not Tags.GROUP_OUTPUTS in outputGroupItem:

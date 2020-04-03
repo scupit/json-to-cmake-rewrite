@@ -45,16 +45,16 @@ def linkToIndividualOutput(linkedLibNames, outputGroups, outputItems, importedLi
     importedLibLinking = getImportedLibByName(importedLibraries, linkedLibName)
 
     if not libLinking is None:
-      if libLinking.isExe:
+      if libLinking.isExeType:
         Logger.logIssueThenQuit(f"Cannot link executable type {linkedLibName} to {toLinkName}")
-      elif outputItemLinkingTo.isOfLibraryType():
+      elif outputItemLinkingTo.isLibraryType():
         Logger.logIssueThenQuit(f"Please don't link output library \"{linkedLibName}\" to another output library ({toLinkName})")
       else:
         outputItemLinkingTo.linkLib(libLinking)
     elif not groupLinking is None:
       if groupLinking.isExeType:
         Logger.logIssueThenQuit(f"Cannot link exe type group {linkedLibName} to {toLinkName}")
-      elif outputItemLinkingTo.isOfLibraryType():
+      elif outputItemLinkingTo.isLibraryType():
         Logger.logIssueThenQuit(f"Please don't link output library group \"{linkedLibName}\" to another output library ({toLinkName})")
       else:
         outputItemLinkingTo.linkGroup(groupLinking)
@@ -70,7 +70,7 @@ def linkToOutputGroup(linkedLibNames, outputGroups, outputItems, importedLibrari
     importedLibLinking = getImportedLibByName(importedLibraries, linkedLibName)
 
     if not libLinking is None:
-      if libLinking.isExe:
+      if libLinking.isExeType:
         Logger.logIssueThenQuit(f"Cannot link executable type {linkedLibName} to {toLinkName}")
       elif outputGroupLinkingTo.isLibraryType():
         Logger.logIssueThenQuit(f"Please don't link output library \"{linkedLibName}\" to an output library group ({toLinkName})")

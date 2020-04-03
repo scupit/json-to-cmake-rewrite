@@ -62,19 +62,19 @@ class BuildData:
 
   def hasSharedLibOutputs(self) -> bool:
     for output in self.outputs:
-      if output.isSharedLib:
+      if output.isSharedLibType:
         return True
     return False
 
   def hasStaticLibOutputs(self) -> bool:
     for output in self.outputs:
-      if output.isStaticLib:
+      if output.isStaticLibType:
         return True
     return False
 
   def hasExecutableOutputs(self) -> bool:
     for output in self.outputs:
-      if output.isExe:
+      if output.isExeType:
         return True
     return False
 
@@ -93,9 +93,9 @@ class BuildData:
   def hasImportedLibraries(self) -> bool:
     return len(self.importedLibs) > 0
 
-  def hasLinks(self) -> bool:
+  def hasLinkedLibs(self) -> bool:
     for output in self.outputs:
-      if output.hasLinks():
+      if output.hasLinkedLibs():
         return True
     
     for group in self.outputGroups:
@@ -103,7 +103,7 @@ class BuildData:
         return True
       
       for ouptut in group.outputs:
-        if output.hasLinks():
+        if output.hasLinkedLibs():
           return True
     return False
 
@@ -127,12 +127,12 @@ class BuildData:
     exesLinkedTo = [ ]
 
     for output in self.outputs:
-      if output.isExe and output.isPartOfLinkTree(linkedLibSearchingFor):
+      if output.isExeType and output.isPartOfLinkTree(linkedLibSearchingFor):
         exesLinkedTo.append(output)
 
     for group in self.outputGroups:
       for output in group.outputs:
-        if output.isExe and output.isPartOfLinkTree(linkedLibSearchingFor):
+        if output.isExeType and output.isPartOfLinkTree(linkedLibSearchingFor):
           exesLinkedTo.append(output)
     return exesLinkedTo
 
