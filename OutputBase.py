@@ -79,6 +79,14 @@ class OutputBase:
           return True
     return False
 
+  # libToLink is OutputItem type
+  def linkLib(self, libToLink):
+    self.linkedLibs.append(libToLink)
+
+  # groupToLink is OutputGroup type
+  def linkGroup(self, groupToLink):
+    self.linkedGroups.append(groupToLink)
+
   # Call before other load functions in constructor
   def loadType(self, outputItemData, itemTypeString: str):
     if not Tags.TYPE in outputItemData:

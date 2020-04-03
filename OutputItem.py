@@ -40,14 +40,6 @@ class OutputItem(OutputBase):
   def hasMainFile(self):
     return not self.mainFile is None
 
-  # libToLink is OutputItem type
-  def linkLib(self, libToLink):
-    self.linkedLibs.append(libToLink)
-
-  # groupToLink is OutputGroup type
-  def linkGroup(self, groupToLink):
-    self.linkedGroups.append(groupToLink)
-
   def isPartOfLinkTree(self, importedLib) -> bool:
     return super().isPartOfLinkTree(importedLib) or (self.isContainedInGroup() and self.groupContainedIn.isPartOfLinkTree(importedLib))
 

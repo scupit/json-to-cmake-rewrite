@@ -37,13 +37,6 @@ class OutputGroup(OutputBase):
     else:
       return Tags.STATIC_LIB
 
-  def linkLib(self, libToLink: OutputItem):
-    self.linkedLibs.append(libToLink)
-  
-  # groupToLink is OutputGruop type
-  def linkGroup(self, groupToLink):
-    self.linkedGroups.append(groupToLink)
-
   def loadType(self, outputItemData):
     super().loadType(outputItemData, "Output Group")
 
