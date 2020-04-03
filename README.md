@@ -460,36 +460,13 @@ Specifying a default build target is optional. If no default standard is specifi
 is used as the default.
 
 # TODO/Planned features
-- [X] Write a proper README
-- [X] Retrieve imported libraries from a specified git link
-- [X] Change default C standard to C99
-- [X] If a default language standard is specified and no supported language standards were specified, use that as the single supported language standard
-- [X] Allow imported libraries to be imported from outside the project tree. **NOTE** that header files must still be in the project tree
-- [X] Create an example project in github and link it in this README
-- [ ] Add "debuggable" flag for executables to flag whether or not a debugger configuration should be build for them. This config does nothing for CMake, but could be helpful if you create a tool to generate debug configurations for your IDE (or vscode, for example)
-- [ ] Add "optional" boolean option for outputs, which determines whether or not the output should be built. Note that this option should be ignore if it is set to 'true' on a library which is a dependency of an execuatable being built.
-- [X] Add "canToggleType" boolean option for output libraries, which can switch whether the library is build as static or shared.
+- [ ] Distribute CMakeLists.txt files throughout the project tree per good practice
 - [ ] Add a checkbox at the bottom which allows you to turn library copy commands off.
 - [ ] Use a cmake custom function for copy commands
-- [X] Allow preprocessor **defines** (add_compile_definitions()) in build targets.
-- [X] When generating external/_build for imported libraries, also generate external/build/*libraryName*
-- [X] Add "outputGroups", which is just output items grouped under a common name. This will make grouping optional outputs much easier, especially when creating several test execuatables. **Each output in the output group should be same type (either executable or library)**
-
-**Ex:**
-``` json
-{
-  "outputGroups": {
-    "tests": {
-      "outputs": {
-        "test_1": { "define-output-1": "..." },
-        "test_2": { "define-output-2": "..." }
-      },
-      "optional": true
-    }
-  }
-}
-```
-
+- [ ] Do not create header/source/includeDir variable in CMakeLists when the target item does not have them
+- [ ] General refactoring, especially output items and linker
+- [ ] Print warnings for attributes set to a value under contitions where the attribute has no effect
+- [ ] Add "optional" boolean option for outputs, which determines whether or not the output should be built. Note that this option should be ignore if it is set to 'true' on a library which is a dependency of an execuatable being built.
 - [ ] Allow file names to be specified using a json object.
 
 **Ex:** 
@@ -510,20 +487,14 @@ is used as the default.
 }
 ```
 
-- [ ] Distribute CMakeLists.txt files throughout the project tree per good practice
-- [ ] Condense file and directory names where possible (use my file tree)
-
-**Ex:** if I have a bunch of header files like this:
-* ${PROJECT_SOURCE_DIR}/dep/include/SFML/Something.hpp
-* ${PROJECT_SOURCE_DIR}/dep/include/SFML/Something_Else.hpp
-* ${PROJECT_SOURCE_DIR}/dep/include/SFML/Something_Or_Another.hpp
-* ${PROJECT_SOURCE_DIR}/dep/include/SFML/Another_File.hpp
-
-Then they should be condensed with a variable:
-`set( SFML_HEADER_ROOT ${PROJECT_SOURCE_DIR}/dep/include/SFML )`
-
-And then the file list should look like this instead:
-* ${SFML_HEADER_ROOT}/Something.hpp
-* ${SFML_HEADER_ROOT}/Something_Else.hpp
-* ${SFML_HEADER_ROOT}/Something_Or_Another.hpp
-* ${SFML_HEADER_ROOT}/Another_File.hpp
+- [X] Write a proper README
+- [X] Retrieve imported libraries from a specified git link
+- [X] Change default C standard to C99
+- [X] If a default language standard is specified and no supported language standards were specified, use that as the single supported language standard
+- [X] Allow imported libraries to be imported from outside the project tree. **NOTE** that header files must still be in the project tree
+- [X] Create an example project in github and link it in this README
+- [ ] Add "debuggable" flag for executables to flag whether or not a debugger configuration should be build for them. This config does nothing for CMake, but could be helpful if you create a tool to generate debug configurations for your IDE (or vscode, for example)
+- [X] Add "canToggleType" boolean option for output libraries, which can switch whether the library is build as static or shared.
+- [X] Allow preprocessor **defines** (add_compile_definitions()) in build targets.
+- [X] When generating external/_build for imported libraries, also generate external/build/*libraryName*
+- [X] Add "outputGroups", which is just output items grouped under a common name. This will make grouping optional outputs much easier, especially when creating several test execuatables. **Each output in the output group should be same type (either executable or library)**
