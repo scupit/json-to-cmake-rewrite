@@ -49,6 +49,17 @@ gui), this is the standard which will be used to compile.
 `"supportedCStandards": ["strings"]` sets a list of standards allowed in the project. This will be selectable in a dropdown
 in the CMake GUI.
 
+Example:
+``` json
+{
+  "defaultCStandard": "11",
+  "supportedCStandards": [
+    "99",
+    "11"
+  ]
+}
+```
+
 **Both are optional**. If only a default standard is specified, that will be used as the project standard. If only an
 array of supported standards is supplied, then the first standard in the array will be used as the default. If both
 are specified, the default standard must exist in the list of supported standards.
@@ -61,6 +72,19 @@ The **C++11** standard will be used if no standards are specified.
 `"defaultCppStandard": "string"` sets the project's default C++ standard. Same rules as C apply.
 `"supportedCppStandards": ["strings"]` sets a list of standards allowed in the project. This will be selectable in
 a dropdown in the CMake GUI.
+
+Example:
+``` json
+{
+  "defaultCppStandard": "14",
+  "supportedCppStandards": [
+    "11",
+    "14",
+    "17"
+  ]
+}
+```
+
 
 **Both are optional**. If only a default standard is specified, that will be used as the project standard. If only an
 array of supported standards is supplied, then the first standard in the array will be used as the default. If both
