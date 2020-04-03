@@ -2,17 +2,22 @@ import Logger
 import Tags
 
 class BuildTarget:
-  name = ""
-  compilerFlags = [ ]
-
   def __init__(self, name, buildTargetData):
     self.name = name
+
+    self.compilerFlags = [ ]
+    self.compilerDefinitions = [ ]
+
     self.loadCompilerFlags(buildTargetData)
+    self.loadCompilerDefinitions(buildTargetData)
 
   # UTILS
 
   def hasCompilerFlags(self):
     return len(self.compilerFlags) > 0
+
+  def hasCompilerDefinitions(self):
+    return len(self.compilerDefinitions) > 0
 
   # LOAD FUNCTIONS
 
@@ -27,3 +32,7 @@ class BuildTarget:
 
         if self.compilerFlags[i][0] != '-':
           self.compilerFlags[i] = '-' + self.compilerFlags[i]
+
+  def loadCompilerDefinitions(self, buildTargetData):
+    if Tags.COMPILER_DEFINES in buildTargetData:
+      self.compilerDefinitions = buildTargetData[Tags.COMPILER_DEFINES]

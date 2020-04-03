@@ -55,4 +55,5 @@ IMPORT_IS_OUTSIDE_PROJECT = "outsideProjectTree"
 IMPORT_GENERATED_DIRNAME = "generatedDirName"
 
 # Build Target attributes
+COMPILER_DEFINES = "defines"
 COMPILER_FLAGS = "compilerFlags"

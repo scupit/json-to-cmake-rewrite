@@ -383,9 +383,6 @@ def writeBuildTargets(allData: BuildData, cmakeLists):
 
   i = 0
   for buildTarget in allData.buildTargets:
-    if not buildTarget.hasCompilerFlags():
-      continue
-
     newlines(cmakeLists)
 
     if i == 0:
@@ -403,6 +400,12 @@ def writeBuildTargets(allData: BuildData, cmakeLists):
     for flag in buildTarget.compilerFlags:
       cmakeLists.write(flag + ' ')
     cmakeLists.write('\" )')
+
+    if buildTarget.hasCompilerDefinitions():
+      cmakeLists.write(f"\n\tadd_compile_definitions( ")
+      for definition in buildTarget.compilerDefinitions:
+        cmakeLists.write(definition + ' ')
+      cmakeLists.write(')')
 
     # Increment 'i' so 'elseif' blocks are placed correctly
     i += 1
