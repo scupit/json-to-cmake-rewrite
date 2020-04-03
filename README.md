@@ -298,8 +298,8 @@ To specify a git repo for the imported library, set its `"gitRepo"` to the remot
 the repo will be cloned into **dep/*libraryName*>** where *libraryName* is the name of the imported library "package".
 If the repo already exists in that location, no cloning occurs. 
 
-Repos are cloned into **external/*repoName***. The directory **external/_builds** will also be there to hold local
-builds.
+Repos are cloned into **external/*repoName***. The directory **external/_builds/*libraryName*** will also be there
+to hold local builds.
 
 #### Optional Cloning
 **Tag:** `"cloneRepo": boolean`.
