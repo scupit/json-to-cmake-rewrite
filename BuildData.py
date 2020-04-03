@@ -99,6 +99,15 @@ class BuildData:
         return True
     return False
 
+  def hasLibraryThatCanBeToggled(self) -> bool:
+    for group in self.outputGroups:
+      if group.hasLibraryThatCanBeToggled():
+        return True
+    
+    for output in self.outputs:
+      if output.canToggleLibraryType:
+        return True
+    return False
 
   def getExesPartOfLinkTree(self, linkedLibSearchingFor) -> list:
     exesLinkedTo = [ ]

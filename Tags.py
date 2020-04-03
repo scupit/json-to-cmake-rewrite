@@ -34,6 +34,7 @@ MAIN_FILE = "mainFile"
 
 EXE_OUTPUT_DIR = "exeOutputDir"
 LIB_OUTPUT_DIR = "libOutputDir"
+LIB_TYPE_TOGGLE_POSSIBLE = "canToggleType"
 
 # Output Types
 EXE = "executable"

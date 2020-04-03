@@ -19,6 +19,8 @@ class OutputItem:
     self.isStaticLib = False
     self.isSharedLib = False
 
+    self.canToggleLibraryType = False
+
     self.exeOutputDir = "bin"
     self.libOutputDir = "lib"
     self.archiveOutputDir = "lib"
@@ -27,6 +29,7 @@ class OutputItem:
 
     self.loadType(outputData)
     self.loadMainFile(outputData)
+    self.loadCanToggleType(outputData)
 
     self.sources = FileRetriever.getSourceFiles(outputData)
     self.headers = FileRetriever.getHeaderFiles(outputData)
@@ -128,3 +131,7 @@ class OutputItem:
   def loadMainFile(self, outputData):
     if self.isExe and Tags.MAIN_FILE in outputData:
       self.mainFile = outputData[Tags.MAIN_FILE]
+
+  def loadCanToggleType(self, outputData):
+    if self.isOfLibraryType() and Tags.LIB_TYPE_TOGGLE_POSSIBLE in outputData:
+      self.canToggleLibraryType = outputData[Tags.LIB_TYPE_TOGGLE_POSSIBLE]

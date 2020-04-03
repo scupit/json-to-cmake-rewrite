@@ -14,6 +14,8 @@ class OutputGroup:
     self.linkedGroups = [ ]
     self.outputs = [ ]
 
+    self.canToggleLibraryType = False
+
     self.isExeType = False
     self.isSharedLibType = False
     self.isStaticLibType = False
@@ -23,6 +25,7 @@ class OutputGroup:
     self.includeDirs = FileRetriever.getIncludeDirs(outputGroupItem)
 
     self.loadType(outputGroupItem)
+    self.loadCanToggleType(outputGroupItem)
     self.loadOutputs(outputGroupItem)
   
   def getPrefixedName(self):
@@ -71,6 +74,15 @@ class OutputGroup:
   def hasLinkedLibs(self):
     return len(self.linkedGroups) > 0 or len(self.linkedLibs) > 0
 
+  def hasLibraryThatCanBeToggled(self):
+    if not self.isLibraryType():
+      return False
+
+    for output in self.outputs:
+      if output.canToggleLibraryType:
+        return True
+    return False
+
   def isOutputTypeCompatible(self, outputItem: OutputItem) -> bool:
     return self.isExeType and outputItem.isExe or self.isLibraryType() and outputItem.isOfLibraryType()
 
@@ -117,6 +129,10 @@ class OutputGroup:
     else:
       Logger.logIssueThenQuit(f"Invalid {Tags.TYPE} given to Output Group {self.name}")
 
+  def loadCanToggleType(self, outputGroupItem):
+    if self.isExeType and Tags.LIB_TYPE_TOGGLE_POSSIBLE in outputGroupItem:
+      self.canToggleLibraryType = outputGroupItem[Tags.LIB_TYPE_TOGGLE_POSSIBLE]
+
   def loadOutputs(self, outputGroupItem):
     if not Tags.GROUP_OUTPUTS in outputGroupItem:
       Logger.logIssueThenQuit(f"Output group {self.name} missing {Tags.GROUP_OUTPUTS}")
@@ -126,6 +142,12 @@ class OutputGroup:
       # NOTE: Also avoids OutputItem construction error
       if not Tags.TYPE in outputData:
         outputData[Tags.TYPE] = self.getTypeString()
+
+      # Outputs in the group will match the group's type toggleability if the output does
+      # not specify. However, it is not overwritten.
+      if not Tags.LIB_TYPE_TOGGLE_POSSIBLE in outputData:
+        outputData[Tags.LIB_TYPE_TOGGLE_POSSIBLE] = self.canToggleLibraryType
+
       self.outputs.append(OutputItem(name, outputData, self))
 
     if len(self.outputs) == 0:

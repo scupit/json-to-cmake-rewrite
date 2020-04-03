@@ -1,3 +1,4 @@
+import CMakeFunctions
 import FileHelper
 import FileWriteUtils
 from FileWriteUtils import inBraces, inQuotes, headersVariable, sourcesVariable, includeDirsVariable
@@ -30,14 +31,17 @@ def newlines(cmakeLists, numNewlines: int = 1):
   for i in range(0, numNewlines):
     cmakeLists.write('\n')
 
+def libCreationFunctionString(lib: OutputItem) -> str:
+  return "createLibraryWithTypeToggle" if lib.canToggleLibraryType else "add_library"
+
 def writeOutputDirs(outputData: OutputItem, cmakeLists):
   cmakeLists.write(f"set_target_properties( {outputData.name} PROPERTIES")
 
-  if outputData.isStaticLib or outputData.isSharedLib:
+  if outputData.isOfLibraryType() or outputData.canToggleLibraryType:
     cmakeLists.write(f"\n\tARCHIVE_OUTPUT_DIRECTORY {FileWriteUtils.getOutputDir(outputData.libOutputDir)}")
     cmakeLists.write(f"\n\tLIBRARY_OUTPUT_DIRECTORY {FileWriteUtils.getOutputDir(outputData.libOutputDir)}")
 
-  if outputData.isExe or outputData.isSharedLib:
+  if outputData.isExe or outputData.isSharedLib or outputData.canToggleLibraryType:
     cmakeLists.write(f"\n\tRUNTIME_OUTPUT_DIRECTORY {FileWriteUtils.getOutputDir(outputData.exeOutputDir)}")
 
   cmakeLists.write('\n)')
@@ -58,6 +62,13 @@ def writeCmakeVersion(data: BuildData, cmakeLists):
 
 def writeProjectName(data: BuildData, cmakeLists):
   cmakeLists.write(f"project( {data.projectName } )")
+
+def writeCMakeFunctions(data: BuildData, cmakeLists):
+  if data.hasLibraryThatCanBeToggled():
+    headerComment(cmakeLists, "Custom Functions")
+
+    cmakeLists.write(CMakeFunctions.TOGGLING_LIBRARY_CREATOR)
+    newlines(cmakeLists, 2)
 
 def writeImportedLibs(data: BuildData, cmakeLists):
   headerComment(cmakeLists, f"IMPORTED LIBRARIES {conditionalNoneText(data.hasImportedLibraries())}")
@@ -168,7 +179,7 @@ def writeSharedLib(sharedLib: OutputItem, allData: BuildData, cmakeLists, contai
   writeGeneralOutputData(sharedLib, allData, cmakeLists, containingGroup)
   newlines(cmakeLists, 2)
 
-  cmakeLists.write(f"add_library( {sharedLib.name} SHARED {inBraces(sourcesVariable(sharedLib.name))} )")
+  cmakeLists.write(f"{libCreationFunctionString(sharedLib)}( {sharedLib.name} SHARED {inQuotes(inBraces(sourcesVariable(sharedLib.name)))} )")
   if outputWillHaveIncludeDirs(sharedLib, containingGroup):
     cmakeLists.write(f"\ntarget_include_directories( {sharedLib.name} PRIVATE {inBraces(includeDirsVariable(sharedLib.name))} )")
 
@@ -179,7 +190,7 @@ def writeStaticLib(staticLib: OutputItem, allData: BuildData, cmakeLists, contai
   writeGeneralOutputData(staticLib, allData, cmakeLists, containingGroup)
   newlines(cmakeLists, 2)
 
-  cmakeLists.write(f"add_library( {staticLib.name} STATIC {inBraces(sourcesVariable(staticLib.name))} )")
+  cmakeLists.write(f"{libCreationFunctionString(staticLib)}( {staticLib.name} STATIC {inQuotes(inBraces(sourcesVariable(staticLib.name)))} )")
   if outputWillHaveIncludeDirs(staticLib, containingGroup):
     cmakeLists.write(f"\ntarget_include_directories( {staticLib.name} PRIVATE {inBraces(includeDirsVariable(staticLib.name))} )")
 
@@ -458,6 +469,8 @@ def writeFile(cmakeLists):
   newlines(cmakeLists)
   writeProjectName(data, cmakeLists)
   newlines(cmakeLists, 2)
+
+  writeCMakeFunctions(data, cmakeLists)
 
   writeStandards(data, cmakeLists)
   newlines(cmakeLists, 2)
