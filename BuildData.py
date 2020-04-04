@@ -99,10 +99,10 @@ class BuildData:
         return True
     
     for group in self.outputGroups:
-      if group.hasLinkes():
+      if group.hasLinkedLibs():
         return True
       
-      for ouptut in group.outputs:
+      for output in group.outputs:
         if output.hasLinkedLibs():
           return True
     return False

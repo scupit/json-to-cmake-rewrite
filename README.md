@@ -94,7 +94,7 @@ are specified, the default standard must exist in the list of supported standard
 **Tag:** `"output": {output objects}`.
 
 Outputs include executables, static libraries, and shared libraries.
-Each ouptut item is required to have a defined type and headers and/or sources. However, these can be
+Each output item is required to have a defined type and headers and/or sources. However, these can be
 inherited in various ways.
 
 Here's an example of the output most common use case:
@@ -214,7 +214,7 @@ for more details and valid types.
 
 There are a few *type* relating things you should keep in mind when creating an output group.
 1. All outputs in the group must have the same "function" type as the group. This means that an *executable* group can only contain executables. But a group with type *staticLib* can only contain library outputs, whether static or shared.
-2. Each outputs will inherit the group's `type` if the output does not define a type. Therefore **the `type` attribute is not required for ouptuts defined in a group**
+2. Each outputs will inherit the group's `type` if the output does not define a type. Therefore **the `type` attribute is not required for outputs defined in a group**
 
 ### Files
 Header and source files are added to groups almost exactly the same way they are added to individual outputs (see
