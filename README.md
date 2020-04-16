@@ -460,13 +460,27 @@ Specifying a default build target is optional. If no default standard is specifi
 is used as the default.
 
 # TODO/Planned features
-- [ ] Distribute CMakeLists.txt files throughout the project tree per good practice
+- [ ] Port to either C++, Rust, or Kotlin for easier types and maintenance.
+- [ ] Dependency graph!! (easy checking with `links`)
+  * Output library ordering based on graph
+  * Allow output libraries to link to each other, since this will also check for circular dependencies.
+- [ ] Subproject support (*add_subdirectory* for truly isolated projects, *include* when libraries are linked between subprojects)
+  * `subprojects`: cmake_data.json files distributed in project tree.
+  * `topLevelSubprojects`: Same as `subprojects` but dirs are specified relative to the root project top level
+  * Allow library linking between subprojects as long as the subprojects are inside the project tree.
+  * Subprojects will be built into the same directory structure as cmake_data.json placement by default (Ex: bin/Debug/*submoduleName*). Shared libraries are the exception, and will be placed in the directories of any item which links to them. (will require a copy command in the case of more than one shared lib link from submodule)
+  * `buildInTopLevel`: boolean which builds subproject output in the top level directory. False by default.
+- [ ] Custom file tree object to reduce file name memory footprint and processing ease
+- [ ] Dependency support for projects which use json-to-cmake
+  * `dependencies`: Similar to *importedLibs* but import *unbuilt* projects containing a cmake_data.json instead
+  * Link from dependency using *dependencyName.libName* or *dependencyName.groupName.libName*
+  * Find and determine the output directory of anything linked (after add_subdirectory), then find_library to the output directories of the libraries using their name and link the found libraries.
 - [ ] Add a checkbox at the bottom which allows you to turn library copy commands off.
 - [ ] Use a cmake custom function for copy commands
 - [ ] Do not create header/source/includeDir variable in CMakeLists when the target item does not have them
 - [X] General refactoring, especially output items and linker
 - [ ] Print warnings for attributes set to a value under contitions where the attribute has no effect
-- [ ] Add "optional" boolean option for outputs, which determines whether or not the output should be built. Note that this option should be ignore if it is set to 'true' on a library which is a dependency of an execuatable being built.
+- [ ] Add "optional" boolean option for outputs, which determines whether or not the output should be built. Note that this option should be ignore if it is set to 'true' on a library which is a dependency of an executable being built.
 - [ ] Allow file names to be specified using a json object.
 
 **Ex:** 
